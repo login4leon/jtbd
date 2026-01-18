@@ -1,0 +1,116 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/png" href="{% static 'img/bitbug_favicon.ico' %}">
+    <title>用户登录</title>
+    <link href="{% static 'plugins/bootstrap-3.4.1/css/bootstrap.css' %}" rel="stylesheet">
+    <style>
+        .bigone {
+            height: 660px;
+            background-image: url("{% static 'img/JTBD_1.png' %}");
+            background-position: top center;
+            background-size: 960px auto;
+            background-repeat: no-repeat;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+        }
+        .opening {
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            align-items: center;
+            height: 100px;
+            font-size: 12px;
+            color: gray;
+        }
+        .account {
+            width: 400px;
+            border: 1px solid #dddddd;
+            border-radius: 6px;
+            box-shadow: 5px 5px 20px #aaaaaa;
+
+            margin-left: auto;
+            margin-right: auto;
+            margin-top: 20px;
+            padding: 20px 40px;
+        }
+
+        .account h1 {
+            text-align: center;
+            margin-top: 10px;
+        }
+
+        .captcha-img {
+            cursor: pointer;
+            height: 40px;
+            border: 1px solid #ccc;
+        }
+
+        form {
+            position: relative;
+            {#padding-bottom: 2.5rem;#}
+        }
+
+        form > a {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            {#transform: translateX(-100%);#}
+        }
+    </style>
+</head>
+<div>
+    <div class="opening">
+        <p>阿里的客服健身，阿顺利的客服接阿上；阿拉的客服接撒；否啊；收到了看法；收到了客服接阿</p>
+    </div>
+    <div class="bigone">
+        <div class="account">
+            <h1>用户登录</h1>
+            <form method="post">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label>用户名</label>
+                    {{ form.username }}
+                    <span style="color: red">{{ form.username.errors }}</span>
+                </div>
+                <div class="form-group">
+                    <label>密码</label>
+                    {{ form.password }}
+                    <span style="color: red">{{ form.password.errors }}</span>
+                </div>
+                <div class="form-group">
+                    <label>验证码</label>
+                    <div class="row">
+                        <div class="col-md-7">
+                            {{ form.captcha }}
+                            <span style="color: red">{{ form.captcha.errors }}</span>
+                        </div>
+                        <div class="col-md-5">
+                            <img class="captcha-img" src="{% url 'captcha' %}">
+                        </div>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary">登 录</button>
+                <a href="/register/">注 册</a>
+            </form>
+
+        </div>
+    </div>
+</div>
+<script>
+    document.querySelector('.captcha-img').onclick = function () {
+        this.src = "{% url 'captcha' %}?t=" + Date.now();
+    };
+    document.querySelector('#id_captcha').addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            document.querySelector('.captcha-img').click();
+        }
+    });
+</script>
+</body>
+</html>

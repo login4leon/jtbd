@@ -1,0 +1,280 @@
+{% extends 'layout.html' %}
+{% block content %}
+    <!-- 子流程列表 -->
+    <div class="container">
+        <div style="margin-bottom: 10px">
+            <button id="btnAdd" class="btn btn-default">
+                <span class="glyphicon glyphicon-plus-sign" aria-hidden="true" style="margin-right: 5px"></span>
+                新建子流程
+            </button>
+        </div>
+        <div>
+            <div class="bs-example" data-example-id="panel-without-body-with-table">
+                <div class="panel panel-default">
+                    <!-- Default panel contents -->
+                    <div class="panel-heading">
+                        <span class="glyphicon glyphicon-th-list" aria-hidden="true" style="margin-right: 5px"></span>
+                        子流程列表
+                    </div>
+                    <!-- Table -->
+                    <table class="table table-bordered">
+                        <thead>
+                        <tr>
+                            <th>序号</th>
+                            <th>子流程</th>
+                            <th>简介</th>
+                            <th>父级</th>
+                            <th>操作</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for obj in queryset %}
+                            <tr fid="{{ obj.id }}">
+                                <td>{{ obj.index }}</td>
+                                <td>{{ obj.name }}</td>
+                                <td>{{ obj.description }}</td>
+                                <td>{{ obj.parent.name }}</td>
+                                <td>
+                                    <a class="btn btn-default btn-xs" href="/step/{{ obj.id }}/list/">
+                                        <span class="glyphicon glyphicon-wrench" aria-hidden="true"
+                                              style="margin-right: 3px"></span>
+                                        配置
+                                    </a>
+                                    <!-- <input fid="{{ obj.id }}" class="btn btn-primary btn-xs btn-edit" type="button"
+                                           value="编辑">
+                                    <input fid="{{ obj.id }}" class="btn btn-danger btn-xs btn-delete" type="button"
+                                           value="删除">
+                                    -->
+                                    <button fid="{{ obj.id }}" class="btn btn-default btn-xs btn-edit">
+                                        <span class="glyphicon glyphicon-pencil" aria-hidden="true"
+                                              style="margin-right: 3px"></span>
+                                        编辑
+                                    </button>
+                                    <button fid="{{ obj.id }}" class="btn btn-default btn-xs btn-delete">
+                                        <span class="glyphicon glyphicon-remove" aria-hidden="true"
+                                              style="margin-right: 3px"></span>
+                                        删除
+                                    </button>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div> <!-- 列表结束 -->
+
+
+    <!-- Modal 新建/编辑 -->
+    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                            aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="myModalLabel">新建子流程</h4>
+                </div>
+                <div class="modal-body">
+                    <form method="post" id="formAdd" novalidate>
+                        <div>
+                            {% for field in form %}
+                                <div class="form-group">
+                                    <label for="exampleInputEmail1">{{ field.label }}</label>
+                                    {{ field }}
+                                    <span class="error-msg" style="color:red;">{{ field.errors }}</span>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">取 消</button>
+                    <button type="button" id="btnSave" class="btn btn-primary">保 存</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal 删除 -->
+    <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="alert alert-danger alert-dismissible fade in" role="alert">
+                <h4>是否确定删除？</h4>
+                <p>删除将导致所有步骤数据一同丢失！</p>
+                <p style="text-align: right">
+                    <button id="btnDeleteConfirm" type="button" class="btn btn-danger">确 定</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">取 消</button>
+                </p>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block js %}
+    <script type="text/javascript">
+        // 设置全局变量记录订单ID用于删除
+        var DELETE_ID;
+        // 设置全局变量，用于判断myModal模态框是执行“新建”？还是“编辑”工作？
+        var EDIT_ID;
+
+        $(function () {
+            bindBtnAddEvent();
+            bindBtnSaveEvent();
+            bindBtnDeleteEvent();
+            bindBtnDeleteConfirmEvent();
+            bindBtnEditEvent();
+        })
+
+        function bindBtnAddEvent() {
+            $('#btnAdd').click(function () {
+
+                // 清空对话框中的原有数据
+                $('#formAdd')[0].reset();
+                // 先设置对话框标题为“新建子流程”
+                $('#myModalLabel').text('新建子流程');
+                $('#myModal').modal('show');
+            });
+        }
+
+        function bindBtnSaveEvent() {
+            $('#btnSave').click(function () {
+                // 清除所有验证错误信息
+                $('.error-msg').empty();
+
+                // 判断EDIT_ID
+                if (EDIT_ID) {
+                    // 编辑
+                    doEdit();
+                } else {
+                    // 新建
+                    doAdd();
+                }
+            });
+        }
+
+        function doEdit() {
+            $.ajax({
+                url: '/flow/edit/?fid=' + EDIT_ID,
+                type: 'post',
+                data: $('#formAdd').serialize(),
+                dataType: 'JSON',
+                success: function (res) {
+                    if (res.status) {
+                        // alert('success');
+                        // 清空表单，$('#formAdd')是jQuery对象，$('#formAdd')[0]是DOM对象
+                        $('#formAdd')[0].reset();
+                        // 关闭对话框
+                        $('#myModal').modal('hide');
+                        // 刷新页面
+                        location.reload();
+
+                    } else {
+                        if (res.tips) {
+                            // 被编辑的记录在数据库中不存在
+                            alert(res.tips);
+                        } else {
+                            $.each(res.errors, function (name, errorList) {
+                                $('#id_' + name).next().text(errorList[0]);
+                            })
+                        }
+
+                    }
+                }
+            })
+        }
+
+        function doAdd() {
+            // 处理表单信息
+            $.ajax({
+                url: '/flow/add/',
+                type: 'post',
+                data: $('#formAdd').serialize(),
+                dataType: 'JSON',
+                success: function (res) {
+                    if (res.status) {
+                        // alert('success');
+                        // 清空表单，$('#formAdd')是jQuery对象，$('#formAdd')[0]是DOM对象
+                        $('#formAdd')[0].reset();
+                        // 关闭对话框
+                        $('#myModal').modal('hide');
+                        // 刷新页面
+                        location.reload();
+
+                    } else {
+                        $.each(res.errors, function (name, errorList) {
+                            $('#id_' + name).next().text(errorList[0]);
+                        })
+                    }
+                }
+            })
+        }
+
+        function bindBtnDeleteEvent() {
+            $('.btn-delete').click(function () {
+                $('#deleteModal').modal('show');
+                // 获取订单的ID
+                DELETE_ID = $(this).attr('fid');
+            });
+        }
+
+        function bindBtnDeleteConfirmEvent() {
+            $('#btnDeleteConfirm').click(function () {
+                $.ajax({
+                    url: "/flow/delete/",
+                    type: 'GET',
+                    data: {
+                        fid: DELETE_ID
+                    },
+                    dataType: 'JSON',
+                    success: function (res) {
+                        if (res.status) {
+                            // 撤回对话框
+                            // $('#deleteModal').modal('hide');
+                            // 在页面上删除对应记录
+                            // $('tr[uid="' + DELETE_ID + '"]').remove();
+
+                            location.reload();
+                        } else {
+                            alert(res.errors)
+                        }
+                    }
+                })
+            });
+        }
+
+        function bindBtnEditEvent() {
+            $('.btn-edit').click(function () {
+                // 清空对话框中原有数据
+                $('#formAdd')[0].reset();
+                // 获取按钮的uid属性值
+                var fid = $(this).attr('fid');
+                EDIT_ID = fid;
+
+                $.ajax({
+                    url: '/flow/detail/',
+                    type: 'get',
+                    data: {
+                        fid: fid
+                    },
+                    dataType: 'JSON',
+                    success: function (res) {
+                        if (res.status) {
+                            $.each(res.data, function (key, value) {
+                                $('#id_' + key).val(value);
+                            })
+                            // 复用新建订单对话框
+                            // 先把对话框的标题改成“修改订单”
+                            $('#myModalLabel').text('修改子流程');
+                            // 再弹出对话框
+                            $('#myModal').modal('show');
+                        } else {
+
+                        }
+                    }
+                })
+
+            });
+        }
+    </script>
+{% endblock %}

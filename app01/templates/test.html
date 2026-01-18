@@ -1,0 +1,1024 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DeepSeek 左侧导航栏 - 可收起用户菜单</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- 引入 jQuery -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
+
+        body {
+            display: flex;
+            min-height: 100vh;
+            background-color: #f5f5f5;
+            color: #333;
+            overflow-x: hidden;
+        }
+
+        /* 左侧导航栏样式 */
+        .left-navbar {
+            width: 280px;
+            background-color: #fff;
+            border-right: 1px solid #e0e0e0;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            position: relative;
+            box-shadow: 1px 0 5px rgba(0, 0, 0, 0.05);
+            z-index: 1;
+        }
+
+        /* Logo区域 */
+        .logo-container {
+            padding: 24px 20px;
+            border-bottom: 1px solid #f0f0f0;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, #6b73ff 0%, #000dff 100%);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .logo-text {
+            font-size: 22px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #6b73ff 0%, #000dff 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* 新建聊天按钮 */
+        .new-chat-btn {
+            margin: 20px;
+            padding: 14px 18px;
+            background-color: #6b73ff;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 12px rgba(107, 115, 255, 0.2);
+        }
+
+        .new-chat-btn:hover {
+            background-color: #5a62e6;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(107, 115, 255, 0.3);
+        }
+
+        .new-chat-btn i {
+            font-size: 18px;
+        }
+
+        /* 聊天历史区域 */
+        .chat-history {
+            flex: 1;
+            overflow-y: auto;
+            padding: 0 16px;
+            margin-bottom: 20px;
+        }
+
+        .history-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 8px;
+            color: #666;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .clear-history {
+            color: #999;
+            cursor: pointer;
+            font-size: 12px;
+            transition: color 0.2s;
+        }
+
+        .clear-history:hover {
+            color: #ff6b6b;
+        }
+
+        .history-list {
+            list-style: none;
+        }
+
+        .history-item {
+            padding: 12px 16px;
+            margin-bottom: 8px;
+            border-radius: 10px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: all 0.2s;
+            color: #555;
+            font-size: 15px;
+            position: relative;
+        }
+
+        .history-item:hover {
+            background-color: #f7f7ff;
+            color: #6b73ff;
+        }
+
+        .history-item.active {
+            background-color: #f0f2ff;
+            color: #6b73ff;
+            font-weight: 600;
+        }
+
+        .history-item i {
+            font-size: 16px;
+            width: 20px;
+        }
+
+        .history-title {
+            flex: 1;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            padding-right: 40px;
+        }
+
+        /* 悬停时显示的...按钮 */
+        .history-actions {
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.2s ease;
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 10;
+        }
+
+        .history-item:hover .history-actions {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .history-item.active .history-actions {
+            opacity: 1;
+        }
+
+        .more-btn {
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid #e0e0e0;
+            width: 28px;
+            height: 28px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: #777;
+            transition: all 0.2s;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .more-btn:hover {
+            background-color: white;
+            color: #6b73ff;
+            border-color: #6b73ff;
+            box-shadow: 0 2px 5px rgba(107, 115, 255, 0.2);
+        }
+
+        /* 操作菜单 */
+        .action-menu {
+            position: fixed;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+            min-width: 180px;
+            z-index: 1000;
+            overflow: hidden;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateX(-10px);
+            transition: all 0.2s ease;
+            border: 1px solid #e0e0e0;
+        }
+
+        .action-menu.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translateX(0);
+        }
+
+        .action-menu-item {
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: #555;
+            font-size: 14px;
+            border-bottom: 1px solid #f5f5f5;
+            background: white;
+        }
+
+        .action-menu-item:last-child {
+            border-bottom: none;
+        }
+
+        .action-menu-item:hover {
+            background-color: #f7f7ff;
+            color: #6b73ff;
+        }
+
+        .action-menu-item.delete:hover {
+            background-color: #fff5f5;
+            color: #ff6b6b;
+        }
+
+        .action-menu-item i {
+            width: 18px;
+            font-size: 14px;
+        }
+
+        /* 用户设置区域 - 修改为可收起 */
+        .user-section {
+            padding: 20px;
+            border-top: 1px solid #f0f0f0;
+            background-color: #fafafa;
+            border-radius: 0 0 0 8px;
+            position: relative;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 0;
+            cursor: pointer;
+            padding: 12px 16px;
+            border-radius: 10px;
+            transition: all 0.2s;
+        }
+
+        .user-info:hover {
+            background-color: #f0f2ff;
+        }
+
+        .user-info.active {
+            background-color: #f0f2ff;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #6b73ff 0%, #8a8eff 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 18px;
+            transition: all 0.2s;
+        }
+
+        .user-info:hover .user-avatar {
+            transform: scale(1.05);
+        }
+
+        .user-details {
+            flex: 1;
+        }
+
+        .user-name {
+            font-weight: 600;
+            font-size: 16px;
+            color: #333;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .user-name .chevron {
+            font-size: 12px;
+            color: #999;
+            transition: transform 0.2s;
+        }
+
+        .user-info.active .user-name .chevron {
+            transform: rotate(180deg);
+            color: #6b73ff;
+        }
+
+        .user-status {
+            font-size: 13px;
+            color: #28a745;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background-color: #28a745;
+            border-radius: 50%;
+        }
+
+        /* 设置菜单 - 修改为可收起 */
+        .settings-menu {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            max-height: 0;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            margin-top: 0;
+        }
+
+        .settings-menu.show {
+            max-height: 500px;
+            margin-top: 20px;
+        }
+
+        .settings-item {
+            padding: 12px 16px;
+            border-radius: 10px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: all 0.2s;
+            color: #555;
+            font-size: 15px;
+            background-color: #fff;
+            border: 1px solid #f0f0f0;
+        }
+
+        .settings-item:hover {
+            background-color: #f0f2ff;
+            color: #6b73ff;
+            border-color: #e0e0ff;
+            transform: translateX(5px);
+        }
+
+        .settings-item i {
+            width: 20px;
+            font-size: 16px;
+        }
+
+        /* 主内容区域 */
+        .main-content {
+            flex: 1;
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+
+        .main-content h1 {
+            font-size: 36px;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .main-content p {
+            font-size: 18px;
+            color: #666;
+            max-width: 600px;
+            line-height: 1.6;
+            margin-bottom: 40px;
+        }
+
+        .ai-icon {
+            font-size: 80px;
+            color: #6b73ff;
+            margin-bottom: 30px;
+        }
+
+        /* 响应式调整 */
+        @media (max-width: 768px) {
+            .left-navbar {
+                width: 250px;
+            }
+
+            .logo-text {
+                font-size: 20px;
+            }
+
+            .action-menu {
+                min-width: 160px;
+            }
+        }
+
+        /* 滚动条样式 */
+        .chat-history::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .chat-history::-webkit-scrollbar-track {
+            background: #f5f5f5;
+            border-radius: 10px;
+        }
+
+        .chat-history::-webkit-scrollbar-thumb {
+            background: #ddd;
+            border-radius: 10px;
+        }
+
+        .chat-history::-webkit-scrollbar-thumb:hover {
+            background: #ccc;
+        }
+
+        /* 深色模式调整 */
+        body.dark-mode .action-menu {
+            background: #2d2d2d;
+            border-color: #444;
+        }
+
+        body.dark-mode .action-menu-item {
+            background: #2d2d2d;
+            color: #ddd;
+            border-bottom-color: #444;
+        }
+
+        body.dark-mode .action-menu-item:hover {
+            background-color: #3a3a3a;
+            color: #8a8eff;
+        }
+
+        body.dark-mode .more-btn {
+            background: rgba(45, 45, 45, 0.9);
+            border-color: #444;
+            color: #aaa;
+        }
+
+        body.dark-mode .settings-item {
+            background-color: #333;
+            border-color: #444;
+            color: #ddd;
+        }
+
+        body.dark-mode .settings-item:hover {
+            background-color: #3a3a3a;
+            color: #8a8eff;
+            border-color: #555;
+        }
+    </style>
+</head>
+<body>
+    <!-- 左侧导航栏 -->
+    <nav class="left-navbar">
+        <!-- Logo区域 -->
+        <div class="logo-container">
+            <div class="logo">DS</div>
+            <div class="logo-text">DeepSeek</div>
+        </div>
+
+        <!-- 新建聊天按钮 -->
+        <button class="new-chat-btn">
+            <i class="fas fa-plus"></i>
+            新对话
+        </button>
+
+        <!-- 聊天历史区域 -->
+        <div class="chat-history">
+            <div class="history-header">
+                <span>今天</span>
+                <span class="clear-history">清除记录</span>
+            </div>
+            <ul class="history-list">
+                <li class="history-item active" data-id="1">
+                    <i class="fas fa-comment"></i>
+                    <span class="history-title">如何学习React框架？</span>
+                    <div class="history-actions">
+                        <button class="more-btn" title="更多操作">
+                            <i class="fas fa-ellipsis-h"></i>
+                        </button>
+                    </div>
+                </li>
+                <li class="history-item" data-id="2">
+                    <i class="fas fa-comment"></i>
+                    <span class="history-title">CSS Grid布局的最佳实践</span>
+                    <div class="history-actions">
+                        <button class="more-btn" title="更多操作">
+                            <i class="fas fa-ellipsis-h"></i>
+                        </button>
+                    </div>
+                </li>
+                <li class="history-item" data-id="3">
+                    <i class="fas fa-comment"></i>
+                    <span class="history-title">Python数据分析项目示例</span>
+                    <div class="history-actions">
+                        <button class="more-btn" title="更多操作">
+                            <i class="fas fa-ellipsis-h"></i>
+                        </button>
+                    </div>
+                </li>
+                <li class="history-item" data-id="4">
+                    <i class="fas fa-comment"></i>
+                    <span class="history-title">如何优化网站性能？</span>
+                    <div class="history-actions">
+                        <button class="more-btn" title="更多操作">
+                            <i class="fas fa-ellipsis-h"></i>
+                        </button>
+                    </div>
+                </li>
+            </ul>
+
+            <div class="history-header" style="margin-top: 20px;">
+                <span>昨天</span>
+            </div>
+            <ul class="history-list">
+                <li class="history-item" data-id="5">
+                    <i class="fas fa-comment"></i>
+                    <span class="history-title">JavaScript闭包原理详解</span>
+                    <div class="history-actions">
+                        <button class="more-btn" title="更多操作">
+                            <i class="fas fa-ellipsis-h"></i>
+                        </button>
+                    </div>
+                </li>
+                <li class="history-item" data-id="6">
+                    <i class="fas fa-comment"></i>
+                    <span class="history-title">机器学习入门指南</span>
+                    <div class="history-actions">
+                        <button class="more-btn" title="更多操作">
+                            <i class="fas fa-ellipsis-h"></i>
+                        </button>
+                    </div>
+                </li>
+                <li class="history-item" data-id="7">
+                    <i class="fas fa-comment"></i>
+                    <span class="history-title">Node.js后端开发技巧</span>
+                    <div class="history-actions">
+                        <button class="more-btn" title="更多操作">
+                            <i class="fas fa-ellipsis-h"></i>
+                        </button>
+                    </div>
+                </li>
+            </ul>
+
+            <div class="history-header" style="margin-top: 20px;">
+                <span>更早</span>
+            </div>
+            <ul class="history-list">
+                <li class="history-item" data-id="8">
+                    <i class="fa-solid fa-check"></i>
+                    <span class="history-title">数据库设计规范</span>
+                    <div class="history-actions">
+                        <button class="more-btn" title="更多操作">
+                            <i class="fas fa-ellipsis-h"></i>
+                        </button>
+                    </div>
+                </li>
+                <li class="history-item" data-id="9">
+                    <i class="fa-solid fa-spinner"></i>
+                    <span class="history-title">Docker容器化部署教程</span>
+                    <div class="history-actions">
+                        <button class="more-btn" title="更多操作">
+                            <i class="fas fa-ellipsis-h"></i>
+                        </button>
+                    </div>
+                </li>
+            </ul>
+        </div>
+
+        <!-- 用户设置区域 - 修改为可收起 -->
+        <div class="user-section">
+            <div class="user-info" id="user-toggle">
+                <div class="user-avatar">张</div>
+                <div class="user-details">
+                    <div class="user-name">
+                        <span>张三</span>
+                        <span class="chevron"><i class="fas fa-chevron-down"></i></span>
+                    </div>
+                    <div class="user-status">
+                        <span class="status-dot"></span>
+                        <span>在线</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 设置菜单 - 初始状态收起 -->
+            <div class="settings-menu" id="settings-menu">
+                <div class="settings-item" data-action="account">
+                    <i class="fas fa-user-cog"></i>
+                    <span>账户设置</span>
+                </div>
+                <div class="settings-item" data-action="theme">
+                    <i class="fas fa-moon"></i>
+                    <span>深色模式</span>
+                </div>
+                <div class="settings-item" data-action="help">
+                    <i class="fas fa-question-circle"></i>
+                    <span>帮助与反馈</span>
+                </div>
+                <div class="settings-item" data-action="logout">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>退出登录</span>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 操作菜单容器 -->
+    <div id="action-menu-container"></div>
+
+    <!-- 主内容区域 -->
+    <main class="main-content">
+        <div class="ai-icon">
+            <i class="fas fa-robot"></i>
+        </div>
+        <h1>DeepSeek AI助手</h1>
+        <p>这是一个模拟的DeepSeek聊天界面左侧导航栏。点击导航栏中的项目可以切换不同的聊天历史记录，使用设置菜单可以管理账户和偏好。</p>
+        <div class="feature-note" style="margin-top: 20px; padding: 15px; background: #f0f2ff; border-radius: 10px; max-width: 600px;">
+            <h3 style="color: #6b73ff; margin-bottom: 10px;">新增：可收起用户菜单</h3>
+            <p style="color: #666; margin-bottom: 10px;">用户设置菜单现在默认收起，点击用户名或头像可以展开/收起菜单：</p>
+            <ul style="text-align: left; color: #666; padding-left: 20px;">
+                <li><strong>点击展开/收起</strong> - 点击用户信息区域切换菜单状态</li>
+                <li><strong>平滑动画</strong> - 使用max-height实现平滑展开效果</li>
+                <li><strong>视觉反馈</strong> - 点击时有背景色变化和图标旋转</li>
+                <li><strong>响应式设计</strong> - 在不同屏幕尺寸下都能正常工作</li>
+            </ul>
+            <p style="color: #666; margin-top: 10px; font-style: italic;">点击左下角的用户信息区域体验收起/展开效果</p>
+        </div>
+    </main>
+
+    <script>
+        // 使用jQuery重写所有交互功能
+        $(document).ready(function() {
+            let activeMenu = null;
+            let isUserMenuOpen = false;
+
+            // 创建菜单HTML模板
+            function createActionMenu() {
+                return `
+                    <div class="action-menu">
+                        <div class="action-menu-item rename-btn">
+                            <i class="fas fa-edit"></i>
+                            <span>重命名</span>
+                        </div>
+                        <div class="action-menu-item duplicate-btn">
+                            <i class="fas fa-copy"></i>
+                            <span>复制对话</span>
+                        </div>
+                        <div class="action-menu-item delete-btn delete">
+                            <i class="fas fa-trash"></i>
+                            <span>删除</span>
+                        </div>
+                    </div>
+                `;
+            }
+
+            // 关闭操作菜单函数
+            function closeActionMenu() {
+                if (activeMenu) {
+                    activeMenu.removeClass('show');
+                    setTimeout(() => {
+                        activeMenu.remove();
+                        activeMenu = null;
+                    }, 200);
+                }
+            }
+
+            // 切换用户菜单函数
+            function toggleUserMenu() {
+                const $settingsMenu = $('#settings-menu');
+                const $userInfo = $('#user-toggle');
+
+                isUserMenuOpen = !isUserMenuOpen;
+
+                if (isUserMenuOpen) {
+                    $settingsMenu.addClass('show');
+                    $userInfo.addClass('active');
+                } else {
+                    $settingsMenu.removeClass('show');
+                    $userInfo.removeClass('active');
+                }
+            }
+
+            // 关闭用户菜单函数
+            function closeUserMenu() {
+                if (isUserMenuOpen) {
+                    $('#settings-menu').removeClass('show');
+                    $('#user-toggle').removeClass('active');
+                    isUserMenuOpen = false;
+                }
+            }
+
+            // 历史记录点击效果
+            $('.history-item').on('click', function(e) {
+                // 如果点击的是操作按钮区域，不执行切换操作
+                if ($(e.target).closest('.history-actions').length) {
+                    return;
+                }
+
+                // 移除所有active类
+                $('.history-item').removeClass('active');
+                // 给当前项添加active类
+                $(this).addClass('active');
+
+                // 更新主内容区域显示当前选择的聊天
+                const title = $(this).find('.history-title').text();
+                const id = $(this).data('id');
+                $('.main-content h1').text(title);
+                $('.main-content p').html(
+                    `正在显示聊天记录 #${id}: <strong>${title}</strong><br><br>这是模拟的聊天内容区域，实际应用中这里会显示完整的对话记录。`
+                );
+            });
+
+            // 新建聊天按钮功能
+            $('.new-chat-btn').on('click', function() {
+                // 重置所有历史记录的active状态
+                $('.history-item').removeClass('active');
+
+                // 更新主内容区域
+                $('.main-content h1').text('新对话');
+                $('.main-content p').html(
+                    '开始一个新的对话<br><br>在这里输入您的问题，DeepSeek AI助手将为您提供专业的回答。'
+                );
+
+                // 显示提示信息
+                alert('已创建新对话，开始与DeepSeek AI聊天吧！');
+            });
+
+            // 清除历史记录功能
+            $('.clear-history').on('click', function() {
+                if (confirm('确定要清除所有聊天历史记录吗？此操作不可撤销。')) {
+                    const $todayList = $('.history-list').first();
+                    const $yesterdayHeader = $('.history-header:nth-of-type(2)');
+                    const $earlierHeader = $('.history-header:nth-of-type(3)');
+
+                    // 清除所有历史记录
+                    $todayList.empty();
+                    $yesterdayHeader.hide();
+                    $earlierHeader.hide();
+
+                    alert('聊天历史记录已清除！');
+                }
+            });
+
+            // 用户菜单切换
+            $('#user-toggle').on('click', function(e) {
+                e.stopPropagation();
+                toggleUserMenu();
+            });
+
+            // 设置菜单项点击效果
+            $('.settings-item').on('click', function(e) {
+                e.stopPropagation();
+                const action = $(this).data('action');
+
+                // 根据不同设置项执行不同操作
+                if (action === 'theme') {
+                    // 切换深色/浅色模式
+                    $('body').toggleClass('dark-mode');
+                    const isDark = $('body').hasClass('dark-mode');
+
+                    // 更新按钮文本
+                    const $button = $(this).find('span');
+                    $button.text(isDark ? '浅色模式' : '深色模式');
+
+                    // 更新图标
+                    const $icon = $(this).find('i');
+                    $icon.toggleClass('fa-moon fa-sun');
+
+                    if (isDark) {
+                        $('body').css({
+                            backgroundColor: '#1a1a1a',
+                            color: '#f0f0f0'
+                        });
+
+                        $('.main-content h1').css('color', '#f0f0f0');
+                        $('.main-content p').css('color', '#ccc');
+                        $('.left-navbar').css({
+                            backgroundColor: '#2d2d2d',
+                            borderRightColor: '#444'
+                        });
+                        $('.logo-container').css('borderBottomColor', '#444');
+                        $('.user-section').css({
+                            backgroundColor: '#333',
+                            borderTopColor: '#444'
+                        });
+                        $('.new-chat-btn').css('boxShadow', '0 4px 12px rgba(0, 0, 0, 0.3)');
+
+                        // 更新历史记录项背景
+                        $('.history-item').each(function() {
+                            if ($(this).hasClass('active')) {
+                                $(this).css('backgroundColor', '#3a3a3a');
+                            } else if ($(this).is(':hover')) {
+                                $(this).css('backgroundColor', '#3a3a3a');
+                            }
+                        });
+                    } else {
+                        $('body').css({
+                            backgroundColor: '#f5f5f5',
+                            color: '#333'
+                        });
+
+                        $('.main-content h1').css('color', '#333');
+                        $('.main-content p').css('color', '#666');
+                        $('.left-navbar').css({
+                            backgroundColor: '#fff',
+                            borderRightColor: '#e0e0e0'
+                        });
+                        $('.logo-container').css('borderBottomColor', '#f0f0f0');
+                        $('.user-section').css({
+                            backgroundColor: '#fafafa',
+                            borderTopColor: '#f0f0f0'
+                        });
+                        $('.new-chat-btn').css('boxShadow', '0 4px 12px rgba(107, 115, 255, 0.2)');
+
+                        // 更新历史记录项背景
+                        $('.history-item').each(function() {
+                            if ($(this).hasClass('active')) {
+                                $(this).css('backgroundColor', '#f0f2ff');
+                            } else if ($(this).is(':hover')) {
+                                $(this).css('backgroundColor', '#f7f7ff');
+                            }
+                        });
+                    }
+                } else if (action === 'logout') {
+                    if (confirm('确定要退出登录吗？')) {
+                        alert('已退出登录，正在跳转到登录页面...');
+                        // 这里可以添加跳转逻辑
+                    }
+                } else {
+                    alert(`已选择: ${$(this).find('span').text()}`);
+                }
+
+                // 点击后关闭用户菜单
+                closeUserMenu();
+            });
+
+            // 操作菜单功能
+            $('.more-btn').on('click', function(e) {
+                e.stopPropagation();
+
+                // 关闭用户菜单（如果打开）
+                closeUserMenu();
+
+                // 如果已有操作菜单打开，先关闭
+                if (activeMenu) {
+                    closeActionMenu();
+                }
+
+                // 创建新菜单
+                const $menuContainer = $('#action-menu-container');
+                $menuContainer.html(createActionMenu());
+                const $menu = $menuContainer.find('.action-menu');
+
+                // 获取按钮位置
+                const buttonRect = $(this)[0].getBoundingClientRect();
+
+                // 设置菜单位置：在按钮右侧，与按钮顶部对齐
+                $menu.css({
+                    left: `${buttonRect.right + 5}px`,
+                    top: `${buttonRect.top}px`
+                });
+
+                // 显示菜单
+                setTimeout(() => {
+                    $menu.addClass('show');
+                    activeMenu = $menu;
+
+                    // 获取相关数据
+                    const $historyItem = $(this).closest('.history-item');
+                    const title = $historyItem.find('.history-title').text();
+                    const id = $historyItem.data('id');
+
+                    // 为菜单项添加点击事件
+                    $menu.find('.rename-btn').on('click', function(e) {
+                        e.stopPropagation();
+
+                        const newTitle = prompt('请输入新的对话标题:', title);
+                        if (newTitle && newTitle.trim() !== '') {
+                            $historyItem.find('.history-title').text(newTitle.trim());
+                            alert(`对话 #${id} 已重命名为: ${newTitle.trim()}`);
+                        }
+
+                        closeActionMenu();
+                    });
+
+                    $menu.find('.duplicate-btn').on('click', function(e) {
+                        e.stopPropagation();
+
+                        // 在实际应用中，这里会复制对话内容
+                        alert(`对话 #${id} 已复制，可以在新标签中打开`);
+                        closeActionMenu();
+                    });
+
+                    $menu.find('.delete-btn').on('click', function(e) {
+                        e.stopPropagation();
+
+                        if (confirm(`确定要删除对话 "${title}" 吗？`)) {
+                            $historyItem.css({
+                                opacity: '0.5',
+                                transform: 'translateX(-20px)'
+                            });
+
+                            setTimeout(() => {
+                                $historyItem.remove();
+                                alert(`对话 #${id} 已删除`);
+
+                                // 如果没有更多历史记录，更新显示
+                                if ($('.history-item').length === 0) {
+                                    $('.main-content h1').text('无聊天记录');
+                                    $('.main-content p').html(
+                                        '暂无聊天历史记录，点击"新对话"按钮开始聊天。'
+                                    );
+                                }
+                            }, 300);
+                        }
+
+                        closeActionMenu();
+                    });
+
+                    // 点击菜单外部关闭菜单
+                    $(document).on('click.closeActionMenu', function(e) {
+                        if ($menu.length && !$menu.is(e.target) && $menu.has(e.target).length === 0
+                            && !$(e.target).closest('.more-btn').length) {
+                            closeActionMenu();
+                            $(document).off('click.closeActionMenu');
+                        }
+                    });
+
+                    // 菜单内部点击不关闭菜单
+                    $menu.on('click', function(e) {
+                        e.stopPropagation();
+                    });
+                }, 10);
+            });
+
+            // 点击页面其他位置关闭用户菜单
+            $(document).on('click', function(e) {
+                // 如果点击的不是用户区域或设置菜单
+                if (!$(e.target).closest('.user-section').length && !$(e.target).closest('.settings-item').length) {
+                    closeUserMenu();
+                }
+            });
+
+            // 悬停时自动显示...按钮
+            $('.history-item').on('mouseenter', function() {
+                const $actions = $(this).find('.history-actions');
+                if ($actions.length) {
+                    // 确保鼠标进入时按钮可见
+                    setTimeout(() => {
+                        $actions.css({
+                            opacity: '1',
+                            visibility: 'visible'
+                        });
+                    }, 50);
+                }
+            });
+
+            $('.history-item').on('mouseleave', function(e) {
+                // 如果鼠标移动到操作按钮或菜单上，不要隐藏
+                const relatedTarget = e.relatedTarget;
+                const $actions = $(this).find('.history-actions');
+
+                if ($actions.length && !$actions.is(relatedTarget) && $actions.has(relatedTarget).length === 0
+                    && (!activeMenu || !activeMenu.is(relatedTarget) && activeMenu.has(relatedTarget).length === 0)) {
+                    $actions.css({
+                        opacity: '0',
+                        visibility: 'hidden'
+                    });
+                }
+            });
+
+            // 窗口大小变化时关闭所有菜单
+            $(window).on('resize', function() {
+                closeActionMenu();
+                closeUserMenu();
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,164 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="{% static 'img/logo.png' %}">
+    <title>商业创意生成器</title>
+    <link rel="stylesheet" href="{% static 'plugins/bootstrap-3.4.1/css/bootstrap.css' %}">
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+
+</head>
+<body>
+
+    <!-- Sidebar -->
+<div class="sidebar">
+        <div class="sidebar-header">
+            <img src="{% static 'img/logo_1.png' %}" alt="JTBD">
+{#            <div class="ds-icon-button__hover-bg"></div>#}
+{#            <button class="icon-button">#}
+{#                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">#}
+{#                    <path fill-rule="evenodd" clip-rule="evenodd"#}
+{#                          d="M9.67269 0.522888C10.8339 0.522888 11.7599 0.522762 12.4963 0.602541C13.2453 0.683705 13.8789 0.854296 14.4263 1.25202C14.7504 1.48744 15.0354 1.77252 15.2709 2.09654C15.6686 2.64398 15.8392 3.27762 15.9203 4.0266C16.0001 4.76295 16 5.689 16 6.85019V9.14991C16 10.3111 16.0001 11.2372 15.9203 11.9735C15.8392 12.7225 15.6686 13.3561 15.2709 13.9036C15.0354 14.2276 14.7504 14.5127 14.4263 14.7481C13.8789 15.1458 13.2453 15.3164 12.4963 15.3976C11.7599 15.4773 10.8339 15.4772 9.67269 15.4772H6.32727C5.16608 15.4772 4.24003 15.4773 3.50368 15.3976C2.75471 15.3164 2.12106 15.1458 1.57363 14.7481C1.2496 14.5127 0.964519 14.2276 0.7291 13.9036C0.331377 13.3561 0.160786 12.7225 0.0796224 11.9735C-0.000156655 11.2372 -3.05163e-05 10.3111 -3.05163e-05 9.14991V6.85019C-3.05163e-05 5.689 -0.000156655 4.76295 0.0796224 4.0266C0.160786 3.27762 0.331377 2.64398 0.7291 2.09654C0.964519 1.77252 1.2496 1.48744 1.57363 1.25202C2.12106 0.854296 2.75471 0.683705 3.50368 0.602541C4.24003 0.522762 5.16608 0.522888 6.32727 0.522888H9.67269ZM5.543 1.8872V14.1119C5.78633 14.1128 6.04706 14.117 6.32727 14.117H9.67269C10.8639 14.117 11.7032 14.1165 12.3492 14.0465C12.9824 13.9779 13.3497 13.8495 13.6267 13.6483C13.8354 13.4967 14.0195 13.3126 14.171 13.104C14.3722 12.8269 14.5007 12.4596 14.5693 11.8265C14.6393 11.1804 14.6398 10.3411 14.6398 9.14991V6.85019C14.6398 5.65901 14.6393 4.81972 14.5693 4.17365C14.5007 3.54053 14.3722 3.17323 14.171 2.89614C14.0195 2.68752 13.8354 2.50341 13.6267 2.35184C13.3497 2.15065 12.9824 2.02217 12.3492 1.95358C11.7032 1.88362 10.8639 1.88311 9.67269 1.88311H6.32727C6.04706 1.88311 5.78633 1.88625 5.543 1.8872ZM4.18277 1.91171C3.99122 1.92164 3.81477 1.93582 3.65073 1.95358C3.01761 2.02217 2.65031 2.15065 2.37322 2.35184C2.1646 2.50341 1.98049 2.68752 1.82892 2.89614C1.62773 3.17323 1.49925 3.54053 1.43066 4.17365C1.36071 4.81972 1.3602 5.65901 1.3602 6.85019V9.14991C1.3602 10.3411 1.36071 11.1804 1.43066 11.8265C1.49925 12.4596 1.62773 12.8269 1.82892 13.104C1.98049 13.3126 2.1646 13.4967 2.37322 13.6483C2.65031 13.8495 3.01761 13.9779 3.65073 14.0465C3.81475 14.0643 3.99124 14.0774 4.18277 14.0874V1.91171Z"#}
+{#                          fill="currentColor">#}
+{#                    </path>#}
+{#                </svg>#}
+{#            </button>#}
+        </div>
+
+        <div class="sidebar-nav">
+            <button class="nav-button" id="newButton">
+                <svg viewBox="0 0 14 14" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+                     width="14.000000" height="14.000000" fill="none" customFrame="#000000">
+                    <g id="Group">
+                        <path id="Vector"
+                              d="M7 13.5C3.41015 13.5 0.5 10.5899 0.5 7C0.5 3.41015 3.41015 0.5 7 0.5C10.5899 0.5 13.5 3.41015 13.5 7C13.5 10.5899 10.5899 13.5 7 13.5Z"
+                              stroke="rgb(0,0,1)" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+                        <g id="Group">
+                            <path id="Vector" d="M7 4L7 10" stroke="rgb(0,0,1)" stroke-linecap="round"
+                                  stroke-linejoin="round" stroke-width="1"/>
+                            <path id="Vector" d="M4 7L10 7" stroke="rgb(0,0,1)" stroke-linecap="round"
+                                  stroke-linejoin="round" stroke-width="1"/>
+                        </g>
+                    </g>
+                </svg>
+                开启新发现
+            </button>
+        </div>
+
+        <div class="separator"></div>
+
+        <div class="conversation-history" id="caseList">
+
+{#            <div class="history-header">#}
+{#                <span class="status-icon">#}
+{#                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">#}
+{#                        <path d="M464 256A208 208 0 1 1 48 256a208 208 0 1 1 416 0zM0 256a256 256 0 1 0 512 0A256 256 0 1 0 0 256zM232 120l0 136c0 8 4 15.5 10.7 20l96 64c11 7.4 25.9 4.4 33.3-6.7s4.4-25.9-6.7-33.3L280 243.2 280 120c0-13.3-10.7-24-24-24s-24 10.7-24 24z"/>#}
+{#                    </svg>#}
+{#                </span>#}
+{#                <span class="history-label">历史记录</span>#}
+{#            </div>#}
+{#            <ul id="caseList"></ul>#}
+
+        </div>
+        <!-- 操作菜单容器 -->
+        <div id="action-menu-container"></div>
+
+        <div class="user-profile">
+            <button class="user-button" id="userButton" uid="{{ request.session.info.id }}">
+                <div style="display: flex; font-size: 16px">
+                    <div class="user-avatar">{{ request.session.info.username|first|upper }}</div>
+                    {{ request.session.info.username }}
+                </div>
+                <span class="status-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512">
+                        <path d="M201.4 137.4c12.5-12.5 32.8-12.5 45.3 0l160 160c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L224 205.3 86.6 342.6c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3l160-160z"/>
+                    </svg>
+                </span>
+            </button>
+            <ul id="userDropdown" class="action-menu hide">
+                <li class="action-menu-item">
+                    <span class="status-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">
+                            <path d="M320 32c0-9.9-4.5-19.2-12.3-25.2S289.8-1.4 280.2 1l-179.9 45C79 51.3 64 70.5 64 92.5L64 448l-32 0c-17.7 0-32 14.3-32 32s14.3 32 32 32l64 0 192 0 32 0 0-32 0-448zM256 256c0 17.7-10.7 32-24 32s-24-14.3-24-32s10.7-32 24-32s24 14.3 24 32zm96-128l96 0 0 352c0 17.7 14.3 32 32 32l64 0c17.7 0 32-14.3 32-32s-14.3-32-32-32l-32 0 0-320c0-35.3-28.7-64-64-64l-96 0 0 64z"/></svg>
+                    </span>
+                    <a href="/logout/">注销</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Main Chat Area -->
+<div class="chat-area">
+        <div id="titleSection" class="bigone">
+            <div class="title-section">
+                <div class="line-box">
+                    <img src="{% static 'img/logo.png' %}" alt="JTBD">
+                    <span>为我们的产品发现商业新机会......</span>
+                </div>
+            </div>
+            <div class="input-area">
+                <div class="input-container">
+                    <input
+                            type="text"
+                            id="productInput"
+                            class="input-field"
+                            placeholder="输入您的产品名称..."
+                    >
+                    <div class="textarea-wrapper">
+                        <textarea
+                                id="infoInput"
+                                class="textarea-field"
+                                placeholder="简短描述您的产品..."
+                        ></textarea>
+                        <button id="sendButton" class="send-button">
+                            {#                            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"#}
+                            {#                                 xmlns:xlink="http://www.w3.org/1999/xlink" width="24.000000" height="24.000000"#}
+                            {#                                 fill="none">#}
+                            {#                                <rect id="paperplane" width="24.000000" height="24.000000" x="0.000000" y="0.000000"#}
+                            {#                                      fill="rgb(255,255,255)"/>#}
+                            {#                                <g id="paperplane">#}
+                            <svg class="icon-sm" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                      d="M13.4422 21.0857L10.9712 15.3227C10.8623 15.069 10.9799 14.775 11.2337 14.6662C11.4875 14.5574 11.7814 14.6749 11.8902 14.9287L14.3614 20.692C14.5454 21.122 15.1636 21.0964 15.3114 20.6526L20.9724 3.6726C21.1051 3.27448 20.7259 2.89535 20.3278 3.02806L3.34898 8.687C2.90391 8.83552 2.87827 9.45425 3.30962 9.63912L10.5492 12.7411L18.8716 4.4216C19.0669 4.22637 19.3835 4.22642 19.5787 4.42172C19.7739 4.61702 19.7739 4.9336 19.5786 5.12883L11.0166 13.6878C10.8625 13.8418 10.633 13.8743 10.447 13.7853L2.91574 10.5583C1.63931 10.0112 1.71531 8.17796 3.0326 7.73836L20.0116 2.07937C21.1915 1.68608 22.3143 2.80895 21.921 3.98885L16.2601 20.9687C15.8218 22.2852 13.9879 22.3612 13.4422 21.0857Z"
+                                      fill="rgb(0,0,0)" fill-rule="evenodd"/>
+                                {#                                </g>#}
+                            </svg>
+                            {#                            <svg class="icon-sm" fill="none" stroke="currentColor" viewBox="0 0 24 24">#}
+                            {#                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"#}
+                            {#                                      d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>#}
+                            {#                            </svg>#}
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="content-wrapper">
+            <div class="sample-content">
+                <div class="sample-container">
+                    <h4 id="productHeader"></h4>
+                    <p id="infoHeader" style="color: gray"></p>
+                    <div id="messageTitle" class="sample-header">
+
+                        <div class="ai-avatar">AI</div>
+                        <h2 class="sample-title">AI 分析流程</h2>
+                    </div>
+                    <div class="messages-area">
+                        <div id="messagesContainer" class="messages-container"></div>
+                    </div>
+                    <div id="ideaTitle" class="sample-header">
+                        <div class="ai-avatar">AI</div>
+                        <h2 class="sample-title">发现的商业机会</h2>
+                    </div>
+                    <div id="ideasContainer" class="business-ideas">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<script src="{% static 'js/jquery-3.7.1.min.js' %}"></script>
+<script src="{% static 'js/app.js' %}"></script>
+</body>
+</html>

@@ -1,0 +1,483 @@
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+}
+
+body {
+    display: flex;
+    min-height: 100vh;
+    background-color: #f5f5f5;
+    color: #333;
+    overflow-x: hidden;
+}
+
+/* 左侧导航栏样式 */
+.left-navbar {
+    width: 280px;
+    background-color: #fff;
+    border-right: 1px solid #e0e0e0;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    position: relative;
+    box-shadow: 1px 0 5px rgba(0, 0, 0, 0.05);
+    z-index: 1;
+}
+
+/* Logo区域 */
+.logo-container {
+    padding: 24px 20px;
+    border-bottom: 1px solid #f0f0f0;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.logo {
+    width: 36px;
+    height: 36px;
+    background: linear-gradient(135deg, #6b73ff 0%, #000dff 100%);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: bold;
+    font-size: 18px;
+}
+
+.logo-text {
+    font-size: 22px;
+    font-weight: 700;
+    background: linear-gradient(135deg, #6b73ff 0%, #000dff 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* 新建聊天按钮 */
+.new-chat-btn {
+    margin: 20px;
+    padding: 14px 18px;
+    background-color: #6b73ff;
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 16px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 12px rgba(107, 115, 255, 0.2);
+}
+
+.new-chat-btn:hover {
+    background-color: #5a62e6;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(107, 115, 255, 0.3);
+}
+
+.new-chat-btn i {
+    font-size: 18px;
+}
+
+/* 聊天历史区域 */
+.chat-history {
+    flex: 1;
+    overflow-y: auto;
+    padding: 0 16px;
+    margin-bottom: 20px;
+}
+
+.history-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 8px;
+    color: #666;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.clear-history {
+    color: #999;
+    cursor: pointer;
+    font-size: 12px;
+    transition: color 0.2s;
+}
+
+.clear-history:hover {
+    color: #ff6b6b;
+}
+
+.history-list {
+    list-style: none;
+}
+
+.history-item {
+    padding: 12px 16px;
+    margin-bottom: 8px;
+    border-radius: 10px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    transition: all 0.2s;
+    color: #555;
+    font-size: 15px;
+    position: relative;
+}
+
+.history-item:hover {
+    background-color: #f7f7ff;
+    color: #6b73ff;
+}
+
+.history-item.active {
+    background-color: #f0f2ff;
+    color: #6b73ff;
+    font-weight: 600;
+}
+
+.history-item i {
+    font-size: 16px;
+    width: 20px;
+}
+
+.history-title {
+    flex: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding-right: 40px;
+}
+
+/* 悬停时显示的...按钮 */
+.history-actions {
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.2s ease;
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 10;
+}
+
+.history-item:hover .history-actions {
+    opacity: 1;
+    visibility: visible;
+}
+
+.history-item.active .history-actions {
+    opacity: 1;
+}
+
+.more-btn {
+    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid #e0e0e0;
+    width: 28px;
+    height: 28px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: #777;
+    transition: all 0.2s;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.more-btn:hover {
+    background-color: white;
+    color: #6b73ff;
+    border-color: #6b73ff;
+    box-shadow: 0 2px 5px rgba(107, 115, 255, 0.2);
+}
+
+/* 操作菜单 */
+.action-menu {
+    position: fixed;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    min-width: 180px;
+    z-index: 1000;
+    overflow: hidden;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateX(-10px);
+    transition: all 0.2s ease;
+    border: 1px solid #e0e0e0;
+}
+
+.action-menu.show {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(0);
+}
+
+.action-menu-item {
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    transition: all 0.2s;
+    color: #555;
+    font-size: 14px;
+    border-bottom: 1px solid #f5f5f5;
+    background: white;
+}
+
+.action-menu-item:last-child {
+    border-bottom: none;
+}
+
+.action-menu-item:hover {
+    background-color: #f7f7ff;
+    color: #6b73ff;
+}
+
+.action-menu-item.delete:hover {
+    background-color: #fff5f5;
+    color: #ff6b6b;
+}
+
+.action-menu-item i {
+    width: 18px;
+    font-size: 14px;
+}
+
+/* 用户设置区域 - 修改为可收起 */
+.user-section {
+    padding: 20px;
+    border-top: 1px solid #f0f0f0;
+    background-color: #fafafa;
+    border-radius: 0 0 0 8px;
+    position: relative;
+}
+
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 0;
+    cursor: pointer;
+    padding: 12px 16px;
+    border-radius: 10px;
+    transition: all 0.2s;
+}
+
+.user-info:hover {
+    background-color: #f0f2ff;
+}
+
+.user-info.active {
+    background-color: #f0f2ff;
+}
+
+.user-avatar {
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(135deg, #6b73ff 0%, #8a8eff 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 600;
+    font-size: 18px;
+    transition: all 0.2s;
+}
+
+.user-info:hover .user-avatar {
+    transform: scale(1.05);
+}
+
+.user-details {
+    flex: 1;
+}
+
+.user-name {
+    font-weight: 600;
+    font-size: 16px;
+    color: #333;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.user-name .chevron {
+    font-size: 12px;
+    color: #999;
+    transition: transform 0.2s;
+}
+
+.user-info.active .user-name .chevron {
+    transform: rotate(180deg);
+    color: #6b73ff;
+}
+
+.user-status {
+    font-size: 13px;
+    color: #28a745;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.status-dot {
+    width: 8px;
+    height: 8px;
+    background-color: #28a745;
+    border-radius: 50%;
+}
+
+/* 设置菜单 - 修改为可收起 */
+.settings-menu {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    max-height: 0;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    margin-top: 0;
+}
+
+.settings-menu.show {
+    max-height: 500px;
+    margin-top: 20px;
+}
+
+.settings-item {
+    padding: 12px 16px;
+    border-radius: 10px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    transition: all 0.2s;
+    color: #555;
+    font-size: 15px;
+    background-color: #fff;
+    border: 1px solid #f0f0f0;
+}
+
+.settings-item:hover {
+    background-color: #f0f2ff;
+    color: #6b73ff;
+    border-color: #e0e0ff;
+    transform: translateX(5px);
+}
+
+.settings-item i {
+    width: 20px;
+    font-size: 16px;
+}
+
+/* 主内容区域 */
+.main-content {
+    flex: 1;
+    padding: 40px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+.main-content h1 {
+    font-size: 36px;
+    margin-bottom: 20px;
+    color: #333;
+}
+
+.main-content p {
+    font-size: 18px;
+    color: #666;
+    max-width: 600px;
+    line-height: 1.6;
+    margin-bottom: 40px;
+}
+
+.ai-icon {
+    font-size: 80px;
+    color: #6b73ff;
+    margin-bottom: 30px;
+}
+
+/* 响应式调整 */
+@media (max-width: 768px) {
+    .left-navbar {
+        width: 250px;
+    }
+
+    .logo-text {
+        font-size: 20px;
+    }
+
+    .action-menu {
+        min-width: 160px;
+    }
+}
+
+/* 滚动条样式 */
+.chat-history::-webkit-scrollbar {
+    width: 6px;
+}
+
+.chat-history::-webkit-scrollbar-track {
+    background: #f5f5f5;
+    border-radius: 10px;
+}
+
+.chat-history::-webkit-scrollbar-thumb {
+    background: #ddd;
+    border-radius: 10px;
+}
+
+.chat-history::-webkit-scrollbar-thumb:hover {
+    background: #ccc;
+}
+
+/* 深色模式调整 */
+body.dark-mode .action-menu {
+    background: #2d2d2d;
+    border-color: #444;
+}
+
+body.dark-mode .action-menu-item {
+    background: #2d2d2d;
+    color: #ddd;
+    border-bottom-color: #444;
+}
+
+body.dark-mode .action-menu-item:hover {
+    background-color: #3a3a3a;
+    color: #8a8eff;
+}
+
+body.dark-mode .more-btn {
+    background: rgba(45, 45, 45, 0.9);
+    border-color: #444;
+    color: #aaa;
+}
+
+body.dark-mode .settings-item {
+    background-color: #333;
+    border-color: #444;
+    color: #ddd;
+}
+
+body.dark-mode .settings-item:hover {
+    background-color: #3a3a3a;
+    color: #8a8eff;
+    border-color: #555;
+}

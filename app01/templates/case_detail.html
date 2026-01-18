@@ -1,0 +1,94 @@
+{% extends 'layout.html' %}
+{% block css %}
+    <link rel="stylesheet"
+          href="//cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.8.0/build/styles/github.min.css">
+    <script src="//cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.8.0/build/highlight.min.js"></script>
+{% endblock %}
+{% block content %}
+    <div class="container">
+        <div style="margin-bottom: 10px">
+            <a class="btn btn-default" href="/case/list/">
+                <span class="glyphicon glyphicon-home" aria-hidden="true" style="margin-right: 5px"></span>
+                返回
+            </a>
+        </div>
+        <div>
+            <div class="bs-example" data-example-id="panel-without-body-with-table">
+                <div class="panel panel-default">
+                    <!-- Default panel contents -->
+                    <div class="panel-heading">
+                        <span class="glyphicon glyphicon-th-list" aria-hidden="true" style="margin-right: 5px"></span>
+                       产品：  {{ case_data.product }}
+                    </div>
+
+                    <!-- Table -->
+                    <table class="table table-bordered table-striped">
+                        <thead>
+                        <tr>
+                            <th>开始时间</th>
+                            <th>结束时间</th>
+                            <th>用时（秒）</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr>
+                            <td>{{ case_data.start_time }}</td>
+                            <td>{{ case_data.end_time }}</td>
+                            <td>{{ case_data.delta }}</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+                {% for flow_data in flow_data_list %}
+                    <div class="panel panel-default">
+                        <!-- Default panel contents -->
+                        <div class="panel-heading">
+                            <span class="glyphicon glyphicon-th-list" aria-hidden="true"
+                                  style="margin-right: 5px"></span>
+                            {{ flow_data.name }}
+                        </div>
+
+                        <!-- Table -->
+                        <table class="table table-bordered table-striped">
+                            <thead>
+                            <tr>
+                                <th>Agent</th>
+                                <th>开始时间</th>
+                                <th>结束时间</th>
+                                <th>用时（秒）</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for step in flow_data.steps %}
+                                <tr>
+                                    <td>{{ step.agent.name }}</td>
+                                    <td>{{ step.start_time }}</td>
+                                    <td>{{ step.end_time }}</td>
+                                    <td>{{ step.delta }}</td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                        <hr>
+                        <table class="table table-bordered table-striped">
+                            <thead>
+                            <tr>
+                                <th>Context</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr>
+                                <td><pre><code class="language-json">{{ flow_data.context }}</code> </pre></td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                {% endfor %}
+            </div>
+
+        </div>
+    </div>
+{% endblock %}
+{% block js %}
+    <script>hljs.highlightAll();</script>
+{% endblock %}

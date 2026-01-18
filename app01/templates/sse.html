@@ -1,0 +1,48 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<button onclick="ask()">提问</button>
+<div id="think" style="white-space: pre-wrap;"></div>
+
+<script>
+    function ask() {
+        const think = document.getElementById('think');
+        think.innerHTML = '';
+
+        let buffer = '';
+        let typing = false;
+        const source = new EventSource(`/sse/test/`);
+        source.onmessage = function (e) {
+            if (e.data === '[DONE]') {
+                source.close();
+                return;
+            }
+            const chunk = JSON.parse(e.data);
+            buffer += chunk.text + '\n';
+            console.log(buffer);
+            if (!typing) {
+                typing = true;
+                typeFromBuffer();
+            }
+        };
+
+        function typeFromBuffer() {
+            if (buffer.length > 0) {
+                const char = buffer[0];
+                buffer = buffer.slice(1);
+                think.textContent += char;
+                setTimeout(typeFromBuffer, 100);
+            } else {
+                think.textContent += '\n';
+                typing = false;
+            }
+        }
+    }
+</script>
+</body>
+</html>

@@ -1,0 +1,69 @@
+{% extends 'layout.html' %}
+{% block content %}
+    <div class="container">
+        <div class="panel panel-default">
+            <div class="panel-heading">{{ title }}</div>
+            <div class="panel-body">
+                <form method="post" novalidate>
+                    {% csrf_token %}
+                    {% for field in form %}
+                        <div class="form-group">
+                            <label for="exampleInputEmail1">{{ field.label }}</label>
+                            {{ field }}
+                            <span style="color:red;">{{ field.errors }}</span>
+                        </div>
+                    {% endfor %}
+                    <button type="submit" class="btn btn-default">
+                        <span class="glyphicon glyphicon-ok" aria-hidden="true" style="margin-right: 5px"></span>
+                        提 交
+                    </button>
+                    <a class="btn btn-default" href="/agent/list/">
+                        <span class="glyphicon glyphicon-home" aria-hidden="true" style="margin-right: 5px"></span>
+                        返回
+                    </a>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+{% block js %}
+    <script>
+        // 把系统提示词和用户提示词的文本框高度设置为自适应内容
+        function autoResize(textarea) {
+            textarea.style.height = 'auto';
+            textarea.style.height = (textarea.scrollHeight + 2) + 'px';
+        }
+
+        // 监控系统提示词文本框的输入和拷贝事件
+        document.querySelectorAll('#id_system_prompt').forEach(textarea => {
+            autoResize(textarea);
+            textarea.addEventListener('input', function () {
+                autoResize(this);
+            });
+            textarea.addEventListener('paste', function (e) {
+                setTimeout(() => autoResize(this), 0);
+            });
+        });
+        // 监控用户提示词文本框的输入和拷贝事件
+        document.querySelectorAll('#id_user_prompt').forEach(textarea => {
+            autoResize(textarea);
+            textarea.addEventListener('input', function () {
+                autoResize(this);
+            });
+            textarea.addEventListener('paste', function (e) {
+                setTimeout(() => autoResize(this), 0);
+            });
+        });
+
+        // 把Agent角色名称文本框设为只读，禁止编辑
+        function toggleReadOnly() {
+            const input = document.getElementById('id_name');
+            input.readOnly = input.value.trim() !== '';
+        }
+
+        // 页面加载完成后检查一次
+        document.addEventListener('DOMContentLoaded', toggleReadOnly);
+        // 输入过程中实时更新
+        {#document.getElementById('id_name').addEventListener('input', toggleDisable);#}
+    </script>
+{% endblock %}

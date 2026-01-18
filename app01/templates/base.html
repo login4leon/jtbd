@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>商业机会点生成器</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://code.iconify.design/3/3.1.1/iconify.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+  <style>
+    .hide-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .hide-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+      overflow-y: auto;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    .loader {
+      border-top-color: #3b82f6;
+      animation: spin 1s linear infinite;
+    }
+    .opportunity-card {
+      transition: all 0.2s ease;
+    }
+    .opportunity-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(5px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .step-active {
+      border-left: 3px solid #4f46e5;
+      background-color: #f0f9ff;
+    }
+    .step-complete .step-icon {
+      background-color: #4f46e5;
+      color: white;
+    }
+    .step-contents {
+      animation: fadeIn 0.3s ease forwards;
+    }
+  </style>
+</head>
+<body class="bg-gray-50 min-h-screen flex items-center justify-center p-4">
+  <div class="max-w-4xl w-full bg-white rounded-xl shadow-lg overflow-hidden">
+    <!-- 顶部表单区域 -->
+    <header class="fixed-section bg-gradient-to-r from-blue-500 to-indigo-600 text-white p-6">
+      <h1 class="text-2xl font-bold mb-2 flex items-center">
+        <span class="iconify mr-2" data-icon="mdi:lightbulb-on-outline"></span>
+        商业机会点生成器
+      </h1>
+      <p class="text-blue-100 mb-4">输入您的产品信息，AI将为您发现潜在商机</p>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label class="block text-sm font-medium mb-1">产品名称</label>
+          <input
+            type="text"
+            id="productName"
+            placeholder="输入产品名称"
+            class="w-full p-3 rounded-lg bg-blue-400/20 text-white placeholder-blue-200 focus:ring-2 focus:ring-white outline-none"
+          >
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-1">产品简介</label>
+          <textarea
+            id="productDesc"
+            rows="2"
+            placeholder="描述产品功能与特点"
+            class="w-full p-3 rounded-lg bg-blue-400/20 text-white placeholder-blue-200 focus:ring-2 focus:ring-white outline-none resize-none"
+          ></textarea>
+        </div>
+      </div>
+    </header>
+
+    <!-- 生成按钮 -->
+    <div class="fixed-section bg-white p-5 flex justify-center border-b">
+      <button id="generateBtn" class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 px-8 rounded-full shadow-md transition flex items-center">
+        <span class="iconify mr-2" data-icon="mdi:robot"></span>
+        生成商业机会
+      </button>
+    </div>
+
+    <!-- 内容区域 -->
+    <main class="content-flex hide-scrollbar p-6 mt-2">
+      <!-- AI推理过程 -->
+      <div id="reasoning" class="hidden">
+        <div class="border-l-2 border-gray-200 pl-5 ml-3 space-y-8 mb-8">
+          <!-- 步骤将动态添加 -->
+        </div>
+        <!-- 进度条 -->
+        <div class="w-full bg-gray-200 rounded-full h-2 overflow-hidden mb-10">
+          <div id="progressBar" class="h-full bg-indigo-600 transition-all duration-300" style="width:0%"></div>
+        </div>
+        <!-- 当前状态 -->
+        <div id="currentAction" class="bg-indigo-50 py-4 px-6 rounded-lg border border-indigo-100 flex items-center animate-pulse">
+          <div class="loader h-6 w-6 border-3 border-gray-300 rounded-full mr-3"></div>
+          <span id="actionText" class="text-indigo-700">准备分析流程...</span>
+        </div>
+      </div>
+
+      <!-- 加载状态 -->
+      <div id="loading" class="hidden flex-col items-center justify-center py-20">
+        <div class="loader h-12 w-12 border-4 border-gray-300 rounded-full mb-4"></div>
+        <p class="text-gray-500">即将完成分析，正在生成机会点...</p>
+      </div>
+
+      <!-- 结果区域 -->
+      <div id="results" class="hidden">
+        <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+          <span class="iconify mr-2" data-icon="mdi:chart-line"></span>
+          30个潜在机会点
+        </h2>
+        <div id="opportunityContainer"></div>
+      </div>
+
+      <!-- 初始提示 -->
+      <div id="initPrompt" class="text-center py-16 text-gray-400">
+        <div class="iconify text-6xl mx-auto mb-4" data-icon="mdi:compass-outline"></div>
+        <h3 class="text-xl font-medium mb-2">准备好探索商业机会</h3>
+        <p>填写产品信息后点击生成按钮，AI将为您分析潜在机会点</p>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    document.getElementById('generateBtn').addEventListener('click', function() {
+      const productName = document.getElementById('productName').value;
+      const productDesc = document.getElementById('productDesc').value;
+
+      if (!productName || !productDesc) {
+        alert('请填写产品名称和简介');
+        return;
+      }
+
+      // 显示推理过程和准备状态
+      document.getElementById('initPrompt').classList.add('hidden');
+      document.getElementById('reasoning').classList.remove('hidden');
+      document.getElementById('loading').classList.add('hidden');
+      document.getElementById('results').classList.add('hidden');
+
+      setupReasoningProcess(productName, productDesc);
+    });
+
+    // 设置推理过程
+    function setupReasoningProcess(productName, productDesc) {
+      const steps = [
+        { title: "初始化分析引擎", icon: "mdi:cogs", content: `加载"${productName}"产品模型...` },
+        { title: "解析核心功能", icon: "mdi:function", content: "拆解产品特性与用户场景" },
+        { title: "市场格局扫描", icon: "mdi:earth", content: "分析行业趋势与竞争格局" },
+        { title: "用户群体挖掘", icon: "mdi:account-group", content: "识别目标人群特征与需求" },
+        { title: "创新机会探索", icon: "mdi:lightbulb-on", content: "匹配技术趋势与商业模式创新点" },
+        { title: "可行性评估", icon: "mdi:chart-timeline", content: "验证需求真实性与实施路径" },
+        { title: "生成机会模型", icon: "mdi:robot", content: "构建商业潜力评估体系" }
+      ];
+
+      // 渲染步骤
+      const reasoningContainer = document.getElementById('reasoning');
+      let stepsHtml = '';
+
+      steps.forEach(step => {
+        stepsHtml += `
+          <div class="step-container" data-step="${step.title}">
+            <div class="flex items-start mb-1">
+              <div class="step-icon w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center mr-3 mt-0.5">
+                <span class="iconify" data-icon="${step.icon}"></span>
+              </div>
+              <h3 class="font-semibold text-gray-700">${step.title}</h3>
+            </div>
+            <div class="step-contents pl-11 text-gray-500 hidden">
+              ${step.content}
+            </div>
+          </div>
+        `;
+      });
+
+      reasoningContainer.querySelector('.border-l-2').innerHTML = stepsHtml;
+
+      // 启动推理动画
+      simulateReasoning(steps, productName, productDesc);
+    }
+
+    // 模拟人工智能推理过程
+    function simulateReasoning(steps, productName, productDesc) {
+      const progressBar = document.getElementById('progressBar');
+      const actionText = document.getElementById('actionText');
+      const stepContainers = document.querySelectorAll('.step-container');
+      const stepContents = document.querySelectorAll('.step-contents');
+      let currentStep = 0;
+      const totalSteps = steps.length;
+
+      const processStep = () => {
+        if (currentStep >= totalSteps) {
+          transitionToGeneration();
+          return;
+        }
+
+        // 更新当前步骤
+        stepContainers[currentStep].classList.add('step-active');
+        stepContents[currentStep].classList.remove('hidden');
+        stepContainers[currentStep].querySelector('.step-icon').parentElement.classList.add('step-complete');
+
+        // 动态更新操作提示
+        const actionTypes = [
+          `深度解析：${steps[currentStep].content}`,
+          `验证产品功能契合度...`,
+          `筛选高价值应用场景`,
+          `匹配市场需求特征`,
+          `创新可能性评估中`
+        ];
+
+        // 步骤内的微操作
+        let microStep = 0;
+        const maxMicroSteps = 3;
+
+        const processMicroStep = () => {
+          if (microStep >= maxMicroSteps) {
+            progressBar.style.width = `${((currentStep + 1) / totalSteps * 100).toFixed(0)}%`;
+            currentStep++;
+            setTimeout(processStep, 800); // 进入下一步
+            return;
+          }
+
+          const newAction = actionTypes[Math.floor(Math.random() * actionTypes.length)]
+          actionText.textContent = newAction;
+          microStep++;
+
+          setTimeout(processMicroStep, 600); // 微操作间隔
+        };
+
+        processMicroStep();
+      };
+
+      actionText.textContent = "开始分析过程...";
+      setTimeout(() => {
+        processStep(0);
+      }, 500);
+    }
+
+    // 过渡到生成阶段
+    function transitionToGeneration() {
+      // 更新最终状态
+      document.getElementById('actionText').textContent = "整合分析结果，生成最终机会点...";
+      document.getElementById('progressBar').style.width = "100%";
+
+      // 切换到加载状态
+      setTimeout(() => {
+        document.getElementById('reasoning').classList.add('hidden');
+        document.getElementById('loading').classList.remove('hidden');
+
+        // 生成最终结果
+        setTimeout(() => {
+          document.getElementById('loading').classList.add('hidden');
+          document.getElementById('results').classList.remove('hidden');
+          generateOpportunities(productName, productDesc);
+        }, 1500);
+      }, 1000);
+    }
+
+    // 分类图标映射
+    const categoryIcons = {
+      '市场机会': 'mdi:chart-areaspline',
+      '产品创新': 'mdi:lightbulb-on',
+      '用户体验': 'mdi:account-supervisor',
+      '商业模式': 'mdi:currency-usd',
+      '运营优化': 'mdi:cogs',
+      '技术突破': 'mdi:chip'
+    };
+
+    // 机会点数据生成
+    let productName = '';
+    let productDesc = '';
+
+    function generateOpportunities(name, desc) {
+      productName = name;
+      productDesc = desc;
+
+      const categories = Object.keys(categoryIcons);
+      const container = document.getElementById('opportunityContainer');
+      container.innerHTML = '';
+
+      // 为每个类别生成5个机会点（共30个）
+      categories.forEach(category => {
+        const section = document.createElement('div');
+        section.className = 'mb-10';
+
+        const header = document.createElement('div');
+        header.className = 'flex items-center mb-4 p-2 bg-gray-50 rounded-lg';
+        header.innerHTML = `
+          <span class="iconify text-2xl mr-2 text-indigo-600" data-icon="${categoryIcons[category]}"></span>
+          <h3 class="text-lg font-semibold text-gray-700">${category}</h3>
+        `;
+
+        const grid = document.createElement('div');
+        grid.className = 'grid grid-cols-1 md:grid-cols-2 gap-4';
+
+        // 生成每个机会点卡片
+        for (let i = 1; i <= 5; i++) {
+          const idea = `基于${name}的${category}机会点 #${i}`;
+          const desc = `通过优化${name}的特定功能，可${['提升用户参与度','创造新的收入来源','降低运营成本','进入新兴市场','强化品牌认知'][Math.floor(Math.random()*5)]}`;
+
+          const card = document.createElement('div');
+          card.className = 'opportunity-card bg-white p-5 rounded-xl border border-gray-200 hover:border-indigo-200';
+          card.innerHTML = `
+            <div class="flex items-start">
+              <div class="flex-1">
+                <h4 class="font-medium text-gray-800 mb-2">${idea}</h4>
+                <p class="text-gray-600 text-sm">${desc}</p>
+              </div>
+              <span class="iconify text-indigo-500 text-xl ml-2" data-icon="mdi:arrow-top-right"></span>
+            </div>
+          `;
+          grid.appendChild(card);
+        }
+
+        section.appendChild(header);
+        section.appendChild(grid);
+        container.appendChild(section);
+      });
+
+      // 添加AI提示词分析模块
+      const aiSection = document.createElement('div');
+      aiSection.className = 'mt-8 p-5 bg-indigo-50 rounded-xl border border-indigo-100';
+      aiSection.innerHTML = `
+        <div class="flex items-center mb-3">
+          <span class="iconify text-xl text-indigo-600" data-icon="mdi:robot"></span>
+          <h3 class="ml-2 font-medium text-indigo-700">AI分析洞察</h3>
+        </div>
+        <div class="bg-white p-4 rounded-lg">
+          <p class="text-gray-700">基于产品"${name}"的描述"${desc.substring(0,50)}..."，系统识别出核心机会集中在${categories[Math.floor(Math.random()*categories.length)]}和${categories[Math.floor(Math.random()*categories.length)]}领域。建议优先探索价值转化路径明确的机会点。</p>
+        </div>
+      `;
+      container.appendChild(aiSection);
+    }
+  </script>
+</body>
+</html>
