@@ -28,6 +28,9 @@ class AuthMiddleware(MiddlewareMixin):
             return
 
         info_dict = request.session.get('info')
+        if not info_dict:
+            return redirect('/login/')
+
         if info_dict['role'] == 'admin':
             return
         else:
