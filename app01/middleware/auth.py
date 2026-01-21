@@ -39,4 +39,4 @@ class AuthMiddleware(MiddlewareMixin):
             else:
                 return redirect('/admin/login/')
 
-        return redirect('/login/')
+        # return redirect('/login/')
