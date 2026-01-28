@@ -28,7 +28,7 @@ SECRET_KEY = 'django-insecure-)2kc9vdun3^wtgh(a3lgptk(vczd$p^$+^6_+=3fdh4n0$l+cg
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['agent-flow.cn', 'www.agent-flow.cn', '47.108.118.15']
+ALLOWED_HOSTS = ['agent-flow.cn', 'www.agent-flow.cn', '47.109.40.77']
 
 # Application definition
 
@@ -83,8 +83,8 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'jtbd',
-        'USER': 'root',
-        'PASSWORD': 'xu2guo',
+        'USER': 'jtbd',
+        'PASSWORD': 'Leon@2025',
         'HOST': '127.0.0.1',
         'PORT': '3306',
     }
