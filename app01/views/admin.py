@@ -35,7 +35,5 @@ def login(request):
     return render(request, 'admin_login.html', {'form': form})
 
 def logout(request):
-    print('admin')
     request.session.clear()
     return redirect('/admin/login/')
-
