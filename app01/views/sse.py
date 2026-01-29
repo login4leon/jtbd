@@ -21,7 +21,10 @@ def sse_stream(request):
                 break
             yield f'data: {json.dumps({"text": chunk})}\n\n'
 
-    return StreamingHttpResponse(event_stream(), content_type='text/event-stream')
+    response = StreamingHttpResponse(event_stream(), content_type='text/event-stream')
+    response['Cache-Control'] = 'no-cache'
+    response['X-Accel-Buffering'] = 'no'
+    return response
 
 
 def start_task(request):
