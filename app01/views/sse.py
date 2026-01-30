@@ -9,11 +9,12 @@ def sse_stream(request):
     case_id = request.GET.get('case_id')
     def event_stream():
         r_sse = redis.Redis(host='localhost', port=6379, db=3)
+        yield ':heartbeat\n\n'
         while True:
             time.sleep(2)
             msg = r_sse.brpop(case_id, timeout=5)  # 阻塞弹出
             if not msg:  # 超时
-                # yield 'data: {}\n\n'
+                yield ':ping\n\n'
                 continue
             chunk = msg[1].decode()
             if chunk == '[DONE]':

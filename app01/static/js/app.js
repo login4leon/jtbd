@@ -565,6 +565,8 @@ function formatMessageContent(content) {
 function flowProcessing() {
 
     const source = new EventSource(`/sse/stream/?case_id=` + CASE_ID);
+    source.onopen = e => console.log('SSE open');
+    source.onerror = e => console.error('SSE error', e);
     source.onmessage = function (e) {
         if (e.data === '[DONE]') {
             source.close();
