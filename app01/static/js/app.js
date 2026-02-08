@@ -8,6 +8,7 @@ let CASE_ID;
 let PRODUCT;
 let INFO;
 let USER_ID;
+let checkTimer = null;
 
 // DOM elements (jQuery objects)
 let $titleSection;
@@ -379,6 +380,17 @@ function showCase(id) {
     });
 }
 
+function pollResult(caseId) {
+    checkTimer = setInterval(async () => {
+        const res = await $.getJSON('/jtbd/result/', {case_id: caseId});
+        if (res.status && res.ideas) {
+            clearInterval(checkTimer);
+            renderIdeas(res.ideas);
+            listCase();
+        }
+    }, 3000);
+}
+
 async function closeCase(id, product, info) {
     // 清空并隐藏操作过程展示和结果展示的区域，以便后面依次展示
     messages = [];
@@ -421,11 +433,12 @@ async function closeCase(id, product, info) {
         success: function (out) {
             if (out.status) {
                 // 展示结果
-                renderIdeas(out.ideas); //展示结果
-                listCase(USER_ID);
+                console.log(out.msg); //展示结果
             }
         }
     });
+    // 轮询结果
+    pollResult(CASE_ID);
 
     // Reset form using jQuery
     isProcessing = false;
@@ -638,11 +651,13 @@ async function handleSubmit() {
         success: function (out) {
             if (out.status) {
                 // 展示结果
-                renderIdeas(out.ideas); //展示结果
+                console.log(out.msg);
             }
         }
     });
 
+    // 轮询结果
+    pollResult(CASE_ID);
     // Reset form using jQuery
     isProcessing = false;
     $productInput.val('');

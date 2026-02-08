@@ -108,6 +108,10 @@ def opencase(request):
     user_id = request.GET.get('user_id')
     start_time = timezone.now()
     case = models.Cases.objects.create(product=product, info=info, user_id=user_id, start_time=start_time)
+    # 向队列中推入case
+    # r_work = redis.Redis(host='localhost', port=6379, db=4)
+    # r_work.lpush('work_queue', case.pk)
+
     return JsonResponse({'status': True, 'case': case.pk, 'start_time': case.start_time})
 
 
@@ -198,62 +202,13 @@ def showideas(solutions):
     return ideas
 
 
+# views.py
 def work(request):
-    # 获取case_id，并提取case对象，以便后面保存相关信息（如：end_time）
     case_id = request.GET.get('case_id')
-    case = models.Cases.objects.get(pk=case_id)
-    # 查看Context是否存在（是否被执行过？）
-    r_context = redis.Redis(host='localhost', port=6379, db=2, decode_responses=True)
-    exists = r_context.hexists(case_id, 'product')
-    if not exists:  # 新case，从头开始
-        # 如果没执行过，则执行root子流程
-        product = case.product
-        info = case.info
-        # 把初始信息插入Contexts表单和redis，root子流程的结果
-        dict_context = {
-            'product': product,
-            'info': info,
-        }
-        root = models.Flows.objects.filter(index=0).first()
-        str_context = json.dumps(dict_context)
-        models.Contexts.objects.create(content=str_context, flow_id=root.id, case_id=case.pk)
-        r_context.hset(case_id, mapping=dict_context)
-
-    # 循环遍历所有工作子流程（root子流程除外）
-    flow_index_list = models.Flows.objects.exclude(index=0).order_by('index').values_list('index', flat=True).distinct()
-    for flow_index in flow_index_list:
-        flows = models.Flows.objects.filter(index=flow_index).order_by('index')
-        if len(flows) == 1:
-            flow_runner(flows[0].id, case_id)
-        else:
-            threads = [threading.Thread(target=flow_runner, args=(flow.id, case_id))
-                       for flow in flows]
-            # 启动所有线程
-            for thread in threads:
-                thread.start()
-            # 等待所有线程完成
-            for thread in threads:
-                thread.join()
-    # 向消息队列推送信息，结束工作
-    r_sse = redis.Redis(host='localhost', port=6379, db=3)
-    r_sse.lpush(case_id, '[DONE]')  # 推入队列
-    # 把执行时间计入数据库Cases表
-    case.end_time = timezone.now()
-    case.delta = (case.end_time - case.start_time).total_seconds()
-    case.save()
-    # 把context中的solution转换成ideas
-    ideas = showideas(r_context.hget(case_id, 'solution'))
-
-    # 清空redis中的context和已完成step队列
-    # r_context.delete(case_id)
-    # r_step = redis.Redis(host='localhost', port=6379, db=1)
-    # r_step.delete(case_id)
-
-    # 给case标记为closed
-    case.closed = True
-    case.save()
-
-    return JsonResponse({'status': True, 'ideas': ideas})
+    # 仅push任务，不阻塞
+    r_work = redis.Redis(host='localhost', port=6379, db=4)
+    r_work.lpush('work_queue', case_id)
+    return JsonResponse({'status': True, 'msg': '任务已提交'})
 
 
 def output(request):
@@ -266,3 +221,11 @@ def output(request):
     ideas = showideas(r_context.hget(case_id, 'solution'))
 
     return JsonResponse({'status': True, 'case': case, 'ideas': ideas})
+
+def result(request):
+    case_id = request.GET.get('case_id')
+    r_res = redis.Redis(host='localhost', port=6379, db=5, decode_responses=True)
+    ideas = r_res.get(f'{case_id}:ideas')
+    if ideas:
+        return JsonResponse({'status': True, 'ideas': json.loads(ideas)})
+    return JsonResponse({'status': False})

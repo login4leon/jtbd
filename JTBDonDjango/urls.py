@@ -31,6 +31,7 @@ urlpatterns = [
     path('jtbd/listcase/', jtbd.listcase, name='listcase'),
     path('jtbd/pincase/', jtbd.pincase, name='pincase'),
     path('jtbd/delcase/', jtbd.delcase, name='delcase'),
+    path('jtbd/result/', jtbd.result, name='result'),
 
     # 运行监控
     path('case/list/', cases.case_list),
