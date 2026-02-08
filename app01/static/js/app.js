@@ -380,6 +380,44 @@ function showCase(id) {
     });
 }
 
+function renderIdeas(ideass) {
+    let ideasHtml = `
+                            <table class="table table-bordered">
+                                <thead>
+                                <tr>
+                                    <th>机会点</th>
+                                    <th>目标人群</th>
+                                    <th>产品设计</th>
+                                    <th>营销口号</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                        `;
+
+
+    ideasHtml += ideass.map(idea => {
+            return `
+                    <tr>
+                        <td style="font-size: 12px;">${idea.opportunity}</td>
+                        <td style="font-size: 12px;">${idea.customer}</td>
+                        <td style="font-size: 12px;">${idea.design}</td>
+                        <td style="font-size: 12px;">${idea.slogan}</td>
+                    </tr>
+                `;
+        }
+    ).join('');
+
+    ideasHtml += `
+                    </tbody>
+                    </table>
+                `;
+    $ideaTitle.show();
+    $ideasContainer.html(ideasHtml);
+
+// Scroll to bottom using jQuery
+    $ideasContainer.scrollTop($ideasContainer[0].scrollHeight);
+}
+
 function pollResult(caseId) {
     checkTimer = setInterval(async () => {
         const res = await $.getJSON('/jtbd/result/', {case_id: caseId});
@@ -523,44 +561,6 @@ function renderMessages() {
 
     // Scroll to bottom using jQuery
     $messagesContainer.scrollTop($messagesContainer[0].scrollHeight);
-}
-
-function renderIdeas(ideass) {
-    let ideasHtml = `
-                            <table class="table table-bordered">
-                                <thead>
-                                <tr>
-                                    <th>机会点</th>
-                                    <th>目标人群</th>
-                                    <th>产品设计</th>
-                                    <th>营销口号</th>
-                                </tr>
-                                </thead>
-                                <tbody>
-                        `;
-
-
-    ideasHtml += ideass.map(idea => {
-            return `
-                    <tr>
-                        <td style="font-size: 12px;">${idea.opportunity}</td>
-                        <td style="font-size: 12px;">${idea.customer}</td>
-                        <td style="font-size: 12px;">${idea.design}</td>
-                        <td style="font-size: 12px;">${idea.slogan}</td>
-                    </tr>
-                `;
-        }
-    ).join('');
-
-    ideasHtml += `
-                    </tbody>
-                    </table>
-                `;
-    $ideaTitle.show();
-    $ideasContainer.html(ideasHtml);
-
-// Scroll to bottom using jQuery
-    $ideasContainer.scrollTop($ideasContainer[0].scrollHeight);
 }
 
 function escapeHtml(text) {
