@@ -81,12 +81,15 @@ def do_long_work(case_id: str):
 def consume():
     logging.info('worker started, waiting for tasks...')
     while True:
-        _, case_id = r_queue.brpop('work_queue', timeout=30)   # 30s 心跳保活
-        if case_id:
-            try:
-                do_long_work(case_id)
-            except Exception as e:
-                logging.exception(f'case {case_id} failed: {e}')
+        result = r_queue.brpop('work_queue', timeout=30)   # 可能返回 None
+        if result is None:                                 # 超时，继续下一轮
+            logging.debug('heartbeat: no task in 30s')
+            continue
+        _, case_id = result                                # 安全解包
+        try:
+            do_long_work(case_id)
+        except Exception as e:
+            logging.exception(f'case {case_id} failed: {e}')
 
 if __name__ == '__main__':
     consume()
