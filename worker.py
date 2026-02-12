@@ -1,6 +1,7 @@
 #!/envs/jtbd/bin/python
 import os, sys, django, redis, json, logging, threading
-from datetime import timezone
+# from datetime import timezone
+from django.utils import timezone
 
 # 1. 把 Django 加载进来（独立脚本必须）
 sys.path.insert(0, '/srv/django-app/jtbd')
@@ -80,6 +81,7 @@ def do_long_work(case_id: str):
 # 6. 阻塞式消费者（永不退出）
 def consume():
     logging.info('worker started, waiting for tasks...')
+
     while True:
         result = r_queue.brpop('work_queue', timeout=30)   # 可能返回 None
         if result is None:                                 # 超时，继续下一轮
