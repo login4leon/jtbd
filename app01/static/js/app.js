@@ -358,6 +358,12 @@ function selectCase(id, product, info, closed) {
 }
 
 function showCase(id) {
+    $ideasContainer.empty();
+    $messagesContainer.hide();
+    $productHeader.empty();
+    $infoHeader.empty();
+    $ideaTitle.empty();
+    $messageTitle.hide();
     // 联系后端，获取对应（case_id）结果
     $.ajax({
             url: '/jtbd/output/',
@@ -381,6 +387,10 @@ function showCase(id) {
 }
 
 function renderIdeas(ideass) {
+    // 清空操作步骤
+    $messagesContainer.hide();
+    $messageTitle.hide();
+
     let ideasHtml = `
                             <table class="table table-bordered">
                                 <thead>

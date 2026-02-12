@@ -69,6 +69,10 @@ def step_runner(case_id, step_id):
     r_sse.lpush(case_id, bot.name + ': 结束工作！')  # 推入队列
     # 向已完成步骤队列推入本步骤的step_id
     r_step.hset(case_id, step_id, bot_output['content'])
+    # 手动断开所有redis连接
+    r_step.close()
+    r_sse.close()
+    r_context.close()
 
 
 class Workflow:
@@ -95,6 +99,8 @@ def flow_runner(flow_id, case_id):
     dict_context = r_context.hgetall(case_id)
     str_context = json.dumps(dict_context)
     models.Contexts.objects.create(content=str_context, flow_id=flow_id, case_id=case_id)
+    # 手动断开redis连接
+    r_context.close()
 
 
 def homepage(request):
@@ -206,8 +212,10 @@ def showideas(solutions):
 def work(request):
     case_id = request.GET.get('case_id')
     # 仅push任务，不阻塞
-    r_work = redis.Redis(host='localhost', port=6379, db=4)
-    r_work.lpush('work_queue', case_id)
+    r_queue = redis.Redis(host='localhost', port=6379, db=4)
+    r_queue.lpush('work_queue', case_id)
+    # 手动断开redis连接
+    r_queue.close()
     return JsonResponse({'status': True, 'msg': '任务已提交'})
 
 
@@ -219,6 +227,8 @@ def output(request):
     case['product'] = r_context.hget(case_id, 'product')
     case['info'] = r_context.hget(case_id, 'info')
     ideas = showideas(r_context.hget(case_id, 'solution'))
+    # 手动断开redis连接
+    r_context.close()
 
     return JsonResponse({'status': True, 'case': case, 'ideas': ideas})
 
@@ -226,6 +236,9 @@ def result(request):
     case_id = request.GET.get('case_id')
     r_res = redis.Redis(host='localhost', port=6379, db=5, decode_responses=True)
     ideas = r_res.get(f'{case_id}:ideas')
+    print(ideas)
+    # 手动断开redis连接
+    r_res.close()
     if ideas:
         return JsonResponse({'status': True, 'ideas': json.loads(ideas)})
     return JsonResponse({'status': False})

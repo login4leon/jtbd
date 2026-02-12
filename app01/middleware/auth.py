@@ -21,7 +21,8 @@ class AuthMiddleware(MiddlewareMixin):
             '/jtbd/delcase/',
             '/jtbd/work/',
             '/jtbd/output/',
-            '/sse/stream/'
+            '/sse/stream/',
+            '/jtbd/result/'
         ]
 
         if request.path_info in white_list:
