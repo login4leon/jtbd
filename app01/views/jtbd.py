@@ -236,7 +236,6 @@ def result(request):
     case_id = request.GET.get('case_id')
     r_res = redis.Redis(host='localhost', port=6379, db=5, decode_responses=True)
     ideas = r_res.get(f'{case_id}:ideas')
-    print(ideas)
     # 手动断开redis连接
     r_res.close()
     if ideas:
