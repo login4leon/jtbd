@@ -148,7 +148,7 @@ def listcase(request):
         })
 
 
-    months = (models.Cases.objects.exclude(Q(start_time=None) | Q(pinned=True)).filter(user_id=user_id).annotate(month=TruncMonth('start_time')).values('month').distinct().order_by('month'))
+    months = (models.Cases.objects.exclude(Q(start_time=None) | Q(pinned=True)).filter(user_id=user_id).annotate(month=TruncMonth('start_time')).values('month').distinct().order_by('-month'))
     if months.exists():
         for m in months:
             start = m['month']
