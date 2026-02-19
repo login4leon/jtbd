@@ -69,7 +69,7 @@
     <div class="bigone">
         <div class="account">
             <h1>用户登录</h1>
-            <form method="post">
+            <form method="post" id="login-form">
                 {% csrf_token %}
                 <div class="form-group">
                     <label>用户名</label>
@@ -105,11 +105,24 @@
     document.querySelector('.captcha-img').onclick = function () {
         this.src = "{% url 'captcha' %}?t=" + Date.now();
     };
-    document.querySelector('#id_captcha').addEventListener('keydown', function (e) {
-        if (e.key === 'Enter') {
-            e.preventDefault();
-            document.querySelector('.captcha-img').click();
-        }
+    {#document.querySelector('#id_captcha').addEventListener('keydown', function (e) {#}
+    {#    if (e.key === 'Enter') {#}
+    {#        e.preventDefault();#}
+    {#        document.querySelector('.captcha-img').click();#}
+    {#    }#}
+    {#});#}
+    // 获取表单和所有输入框
+    const form = document.getElementById('login-form');
+    const inputs = form.querySelectorAll('input');
+
+    // 为每个输入框绑定键盘事件
+    inputs.forEach(function(input) {
+        input.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {      // 检测回车键
+                e.preventDefault();        // 阻止默认行为
+                form.submit();             // 提交表单（等于点击登录按钮）
+            }
+        });
     });
 </script>
 </body>
