@@ -1,5 +1,5 @@
 #!/envs/jtbd/bin/python
-import os, sys, django, redis, json, logging, threading
+import os, sys, django, redis, json, logging, threading, time
 # from datetime import timezone
 from django.utils import timezone
 from django.db import close_old_connections
@@ -98,7 +98,13 @@ def consume():
         # 每次循环关闭mysql连接
         close_old_connections()
 
-        result = r_queue.brpop('work_queue', timeout=30)   # 可能返回 None
+        try:
+            result = r_queue.brpop('work_queue', timeout=30)   # 可能返回 None
+        except Exception as e:
+            logging.error(f'Redis 错误：{e}')
+            time.sleep(5)
+            continue
+
         if result is None:                                 # 超时，继续下一轮
             logging.debug('heartbeat: no task in 30s')
             continue
