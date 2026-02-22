@@ -669,6 +669,8 @@ body {
     flex-direction: column;
     gap: 12px;
     color: gray;
+    height: 500px;
+    overflow-y: auto;
 }
 
 .message {

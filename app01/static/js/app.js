@@ -532,15 +532,16 @@ function closeActionMenu() {
     }
 }
 
-function addMessage(content, isProcessingMsg = false) {
-    const message = {
-        id: Date.now().toString(),
-        content: content,
-        isProcessing: isProcessingMsg,
-    };
-    messages.push(message);
-    renderMessages();
-    return message;
+function escapeHtml(text) {
+    return $('<div>').text(text).html();
+}
+
+function formatMessageContent(content) {
+    // Simple markdown-like formatting for **bold**
+    let formatted = escapeHtml(content);
+    formatted = formatted.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+    formatted = formatted.replace(/\n/g, '<br>');
+    return formatted;
 }
 
 function renderMessages() {
@@ -573,23 +574,20 @@ function renderMessages() {
     $messagesContainer.scrollTop($messagesContainer[0].scrollHeight);
 }
 
-function escapeHtml(text) {
-    return $('<div>').text(text).html();
-}
-
-function formatMessageContent(content) {
-    // Simple markdown-like formatting for **bold**
-    let formatted = escapeHtml(content);
-    formatted = formatted.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-    formatted = formatted.replace(/\n/g, '<br>');
-    return formatted;
+function addMessage(content, isProcessingMsg = false) {
+    const message = {
+        id: Date.now().toString(),
+        content: content,
+        isProcessing: isProcessingMsg,
+    };
+    messages.push(message);
+    renderMessages();
+    return message;
 }
 
 function flowProcessing() {
 
     const source = new EventSource(`/sse/stream/?case_id=` + CASE_ID);
-    source.onopen = e => console.log('SSE open');
-    source.onerror = e => console.error('SSE error', e);
     source.onmessage = function (e) {
         if (e.data === '[DONE]') {
             source.close();
