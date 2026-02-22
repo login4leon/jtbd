@@ -2,6 +2,8 @@
 import os, sys, django, redis, json, logging, threading
 # from datetime import timezone
 from django.utils import timezone
+from django.db import close_old_connections
+from kombu.exceptions import OperationalError
 
 # 1. 把 Django 加载进来（独立脚本必须）
 sys.path.insert(0, '/srv/django-app/jtbd')
@@ -25,8 +27,16 @@ r_res   = redis.Redis(host='localhost', port=6379, db=5, decode_responses=True) 
 
 # 5. 真正的长任务（原来写在 views.py 里的逻辑搬过来）
 def do_long_work(case_id: str):
+    # 关闭过期mysql连接
+    close_old_connections()
+
     logging.info(f'start work case={case_id}')
-    case = Cases.objects.get(pk=case_id)
+
+    try:
+        case = Cases.objects.get(pk=case_id)
+    except OperationalError as e:
+        logging.error(f'mysql连接失败：{e}')
+        raise
 
     # ===== 以下是你原来 /jtbd/work/ 里的全部代码 =====
     r_context = redis.Redis(host='localhost', port=6379, db=2, decode_responses=True)
@@ -77,12 +87,17 @@ def do_long_work(case_id: str):
     case.save()
 
     logging.info(f'finish work case={case_id} delta={case.delta}s')
+    # 任务结束，关闭mysql连接
+    close_old_connections()
 
 # 6. 阻塞式消费者（永不退出）
 def consume():
     logging.info('worker started, waiting for tasks...')
 
     while True:
+        # 每次循环关闭mysql连接
+        close_old_connections()
+
         result = r_queue.brpop('work_queue', timeout=30)   # 可能返回 None
         if result is None:                                 # 超时，继续下一轮
             logging.debug('heartbeat: no task in 30s')
@@ -92,6 +107,8 @@ def consume():
             do_long_work(case_id)
         except Exception as e:
             logging.exception(f'case {case_id} failed: {e}')
+            # 出错后也关闭mysql连接
+            close_old_connections()
 
 if __name__ == '__main__':
     consume()
