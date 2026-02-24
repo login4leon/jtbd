@@ -72,7 +72,12 @@ def do_long_work(case_id: str):
     r_sse.lpush(case_id, '[DONE]')
 
     # 写回结果到redis
-    ideas = showideas(r_context.hget(case_id, 'solution'))
+    ideas = []
+    keys = r_context.hkeys(case_id)
+    for key in keys:
+        if 'solution' in key:
+            ideas.extend(showideas(r_context.hget(case_id, key)))
+    # 写入redis
     r_res.set(f'{case_id}:ideas', json.dumps(ideas), ex=3600)
 
     # 清空redis中的context和已完成step队列
