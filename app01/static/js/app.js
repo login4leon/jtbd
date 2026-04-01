@@ -357,36 +357,6 @@ function selectCase(id, product, info, closed) {
     }
 }
 
-function showCase(id) {
-    $ideasContainer.empty();
-    $messagesContainer.hide();
-    $productHeader.empty();
-    $infoHeader.empty();
-    $ideaTitle.empty();
-    $messageTitle.hide();
-    // 联系后端，获取对应（case_id）结果
-    $.ajax({
-            url: '/jtbd/output/',
-            type: 'GET',
-            data: {
-                case_id: id
-            },
-            dataType: 'JSON',
-            success: function (out) {
-                if (out.status) {
-                    console.log(out.ideas);
-                    // 展示标题
-                    const opening1 = '产品：' + out.case.product;
-                    const opening2 = '产品描述：' + out.case.info;
-                    $productHeader.text(opening1);
-                    $infoHeader.text(opening2);
-                    //展示结果
-                    renderIdeas(out.ideas);
-                }
-            }
-    });
-}
-
 function renderIdeas(ideass) {
     // 清空操作步骤
     $messagesContainer.hide();
@@ -428,6 +398,37 @@ function renderIdeas(ideass) {
 // Scroll to bottom using jQuery
     $ideasContainer.scrollTop($ideasContainer[0].scrollHeight);
 }
+
+function showCase(id) {
+    $ideasContainer.empty();
+    $messagesContainer.hide();
+    $productHeader.empty();
+    $infoHeader.empty();
+    $ideaTitle.empty();
+    $messageTitle.hide();
+    // 联系后端，获取对应（case_id）结果
+    $.ajax({
+            url: '/jtbd/output/',
+            type: 'GET',
+            data: {
+                case_id: id
+            },
+            dataType: 'JSON',
+            success: function (out) {
+                if (out.status) {
+                    console.log(out.ideas);
+                    // 展示标题
+                    const opening1 = '产品：' + out.case.product;
+                    const opening2 = '产品描述：' + out.case.info;
+                    $productHeader.text(opening1);
+                    $infoHeader.text(opening2);
+                    //展示结果
+                    renderIdeas(out.ideas);
+                }
+            }
+    });
+}
+
 
 function pollResult(caseId) {
     checkTimer = setInterval(async () => {
