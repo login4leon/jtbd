@@ -226,11 +226,14 @@ def output(request):
 
     case['product'] = r_context.hget(case_id, 'product')
     case['info'] = r_context.hget(case_id, 'info')
-    ideas = showideas(r_context.hget(case_id, 'solution'))
+
+    r_res = redis.Redis(host='localhost', port=6379, db=5, decode_responses=True)
+    ideas = r_res.get(f'{case_id}:ideas')
     # 手动断开redis连接
     r_context.close()
+    r_res.close()
 
-    return JsonResponse({'status': True, 'case': case, 'ideas': ideas})
+    return JsonResponse({'status': True, 'case': case, 'ideas': json.loads(ideas)})
 
 def result(request):
     case_id = request.GET.get('case_id')
