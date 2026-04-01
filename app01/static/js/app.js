@@ -374,6 +374,7 @@ function showCase(id) {
             dataType: 'JSON',
             success: function (out) {
                 if (out.status) {
+                    console.log(out.ideas);
                     // 展示标题
                     const opening1 = '产品：' + out.case.product;
                     const opening2 = '产品描述：' + out.case.info;
