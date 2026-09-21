@@ -101,6 +101,11 @@
         </div>
     </div>
 </div>
+<footer style="text-align: center; padding: 20px 0;">
+  <a href="https://beian.miit.gov.cn/" target="_blank" rel="noopener noreferrer">
+    蜀ICP备2026005191号
+  </a>
+</footer>
 <script>
     document.querySelector('.captcha-img').onclick = function () {
         this.src = "{% url 'captcha' %}?t=" + Date.now();

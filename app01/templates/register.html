@@ -106,16 +106,16 @@
         </div>
     </div>
 </div>
+<footer style="text-align: center; padding: 20px 0;">
+  <a href="https://beian.miit.gov.cn/" target="_blank" rel="noopener noreferrer">
+    蜀ICP备2026005191号
+  </a>
+</footer>
 <script>
     document.querySelector('.captcha-img').onclick = function () {
         this.src = "{% url 'captcha' %}?t=" + Date.now();
     };
-    {#document.querySelector('#id_captcha').addEventListener('keydown', function (e) {#}
-    {#    if (e.key === 'Enter') {#}
-    {#        e.preventDefault();#}
-    {#        document.querySelector('.captcha-img').click();#}
-    {#    }#}
-    {#});#}
+
     // 获取表单和所有输入框
     const form = document.getElementById('register-form');
     const inputs = form.querySelectorAll('input');
